@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctigo Timeguard — Universal Work Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0b0f;--ink2:#13151f;--ink3:#1c1f2e;--surface:#222638;--surface2:#2a2f45;
+  --rim:rgba(148,163,255,0.1);--rim2:rgba(148,163,255,0.18);--rim3:rgba(148,163,255,0.3);
+  --lime:#c8f135;--lime2:#b0d42a;--blue:#5b7fff;--blue2:#8ba3ff;
+  --teal:#00c9a7;--coral:#ff6b6b;--amber:#ffc542;--purple:#a78bfa;
+  --txt:#e4e8ff;--txt2:#8892b8;--txt3:#4a5280;
+  --r:10px;--rl:16px;--rxl:22px;--sw:230px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Instrument Sans',sans-serif;background:var(--ink);color:var(--txt);display:flex;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:9px;}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;transition:opacity .4s,transform .4s;}
+#login-screen.out{opacity:0;pointer-events:none;transform:scale(1.03);}
+.login-wrap{width:420px;position:relative;z-index:1;}
+.login-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(92,127,255,0.07) 0%,transparent 70%);top:-200px;left:-90px;pointer-events:none;}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+.llogo-mark{width:40px;height:40px;background:var(--lime);border-radius:11px;display:flex;align-items:center;justify-content:center;}
+.llogo-mark svg{width:22px;height:22px;}
+.llogo-name{font-family:'Cabinet Grotesk',sans-serif;font-size:22px;font-weight:900;letter-spacing:-.5px;}
+.llogo-tag{font-size:10px;color:var(--txt3);font-weight:500;letter-spacing:1.5px;text-transform:uppercase;display:block;margin-top:-2px;}
+.login-card{background:var(--ink2);border:1px solid var(--rim2);border-radius:var(--rxl);padding:36px 32px;}
+.auth-tabs{display:flex;background:var(--ink3);border-radius:var(--r);padding:4px;gap:3px;margin-bottom:28px;}
+.auth-tab{flex:1;padding:8px;text-align:center;border-radius:7px;font-size:12px;cursor:pointer;color:var(--txt3);transition:all .2s;font-weight:500;}
+.auth-tab.on{background:var(--surface2);color:var(--lime);border:1px solid rgba(200,241,53,0.2);}
+.login-title{font-family:'Cabinet Grotesk',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px;letter-spacing:-.4px;}
+.login-sub{font-size:13px;color:var(--txt2);margin-bottom:26px;}
+.lf{margin-bottom:14px;}
+.lf label{display:block;font-size:11px;color:var(--txt2);margin-bottom:5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.lf input{width:100%;background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:11px 14px;color:var(--txt);font-family:'Instrument Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.lf input:focus{border-color:rgba(200,241,53,.4);}
+.lf input::placeholder{color:var(--txt3);}
+.btn-auth{width:100%;padding:13px;border-radius:var(--r);border:none;background:var(--lime);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;letter-spacing:.2px;transition:all .2s;}
+.btn-auth:hover{background:var(--lime2);transform:translateY(-1px);}
+.auth-err{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);border-radius:var(--r);padding:9px 13px;font-size:12px;color:#ff9999;margin-bottom:12px;display:none;}
+.auth-err.on{display:block;}
+.demo-link{width:100%;margin-top:10px;padding:11px;border-radius:var(--r);border:1px solid var(--rim2);background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;}
+.demo-link:hover{background:var(--ink3);color:var(--txt);}
+.divider{text-align:center;font-size:11px;color:var(--txt3);margin:14px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--rim);}
+.divider::before{left:0;}.divider::after{right:0;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);min-width:var(--sw);height:100vh;background:var(--ink2);border-right:1px solid var(--rim);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;overflow:hidden;}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:10px;}
+.sb-mark{width:30px;height:30px;background:var(--lime);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-mark svg{width:16px;height:16px;}
+.sb-name{font-family:'Cabinet Grotesk',sans-serif;font-weight:900;font-size:15px;letter-spacing:-.3px;}
+.sb-ver{font-size:9px;color:var(--lime);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;}
+.sb-industry{margin:10px 10px 0;background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.15);border-radius:var(--r);padding:8px 11px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.sb-industry-icon{font-size:14px;}
+.sb-industry-name{font-size:11px;color:var(--lime);font-weight:600;}
+.sb-industry-change{font-size:10px;color:var(--txt3);margin-left:auto;}
+.nav-grp{padding:10px 8px 4px;}
+.nav-lbl{font-size:9px;color:var(--txt3);font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 8px 6px;}
+.nav-it{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--txt2);margin-bottom:1px;border:1px solid transparent;transition:all .18s;font-weight:500;}
+.nav-it:hover{background:var(--ink3);color:var(--txt);}
+.nav-it.on{background:rgba(200,241,53,.07);color:var(--lime);border-color:rgba(200,241,53,.2);}
+.nav-it svg{width:14px;height:14px;flex-shrink:0;opacity:.7;}
+.nav-it.on svg{opacity:1;}
+.nav-badge{margin-left:auto;font-size:9px;padding:2px 7px;border-radius:99px;background:rgba(200,241,53,.12);color:var(--lime);font-weight:700;}
+.nav-badge.red{background:rgba(255,107,107,.12);color:var(--coral);}
+.sb-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid var(--rim);}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);background:var(--ink3);border:1px solid var(--rim);}
+.sb-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.sb-uname{font-size:12px;font-weight:600;color:var(--txt);}
+.sb-urole{font-size:10px;color:var(--txt3);}
+.sb-logout{margin-top:6px;width:100%;padding:7px;border-radius:var(--r);border:1px solid var(--rim);background:transparent;color:var(--txt3);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;}
+.sb-logout:hover{border-color:rgba(255,107,107,.3);color:var(--coral);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{height:54px;min-height:54px;border-bottom:1px solid var(--rim);padding:0 22px;display:flex;align-items:center;gap:14px;background:var(--ink2);}
+.topbar-title{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:16px;letter-spacing:-.3px;flex:1;}
+.topbar-sub{font-size:11px;color:var(--txt3);}
+.status-pip{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px rgba(200,241,53,.2);}
+.status-lbl{font-size:11px;color:var(--lime);font-weight:600;}
+.btn-xs{padding:6px 13px;border-radius:8px;border:1px solid var(--rim2);background:var(--ink3);color:var(--txt2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px;font-weight:500;}
+.btn-xs:hover{background:var(--surface);color:var(--txt);}
+.btn-prime{padding:7px 15px;border-radius:8px;border:none;background:var(--lime);color:var(--ink);font-size:12px;font-weight:700;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;display:flex;align-items:center;gap:6px;transition:all .18s;}
+.btn-prime:hover{background:var(--lime2);}
+.btn-ghost{padding:6px 12px;border-radius:8px;border:1px solid var(--rim);background:transparent;color:var(--txt2);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--rim2);color:var(--txt);}
+.btn-danger{padding:6px 12px;border-radius:8px;border:1px solid rgba(255,107,107,.2);background:rgba(255,107,107,.07);color:var(--coral);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .2s;}
+.btn-danger:hover{background:rgba(255,107,107,.14);}
+
+/* ── PANELS ── */
+.panel{flex:1;overflow-y:auto;display:none;flex-direction:column;padding:24px 22px;gap:18px;}
+.panel.on{display:flex;}
+
+/* ── SHARED UI ── */
+.sh{display:flex;align-items:center;justify-content:space-between;}
+.sh-l h2{font-family:'Cabinet Grotesk',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px;}
+.sh-l p{font-size:12px;color:var(--txt2);margin-top:2px;}
+.card{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);overflow:hidden;}
+.card-p{padding:18px 20px;}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-c{background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;}
+.stat-c::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--lime),transparent);}
+.stat-n{font-family:'Cabinet Grotesk',sans-serif;font-size:26px;font-weight:900;letter-spacing:-.5px;}
+.stat-l{font-size:10px;color:var(--txt3);margin-top:3px;text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.stat-t{font-size:11px;color:var(--teal);margin-top:4px;font-weight:500;}
+.pill{display:inline-flex;align-items:center;font-size:10px;padding:3px 9px;border-radius:99px;font-weight:600;}
+.pill-lime{background:rgba(200,241,53,.1);color:var(--lime);border:1px solid rgba(200,241,53,.2);}
+.pill-blue{background:rgba(91,127,255,.1);color:var(--blue2);border:1px solid rgba(91,127,255,.2);}
+.pill-teal{background:rgba(0,201,167,.1);color:var(--teal);border:1px solid rgba(0,201,167,.2);}
+.pill-coral{background:rgba(255,107,107,.1);color:var(--coral);border:1px solid rgba(255,107,107,.2);}
+.pill-amber{background:rgba(255,197,66,.1);color:var(--amber);border:1px solid rgba(255,197,66,.2);}
+.pill-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.form-g{margin-bottom:14px;}
+.form-g label{display:block;font-size:11px;color:var(--txt2);margin-bottom:5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+.fi,.fs,.fta{width:100%;background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:10px 13px;color:var(--txt);font-family:'Instrument Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.fi:focus,.fs:focus,.fta:focus{border-color:rgba(200,241,53,.35);}
+.fi::placeholder,.fta::placeholder{color:var(--txt3);}
+.fta{resize:vertical;min-height:72px;line-height:1.5;}
+.fs option{background:var(--ink3);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.sr{width:100%;background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:9px 13px;color:var(--txt);font-family:'Instrument Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.sr:focus{border-color:rgba(200,241,53,.3);}
+.sr::placeholder{color:var(--txt3);}
+.spinner{width:15px;height:15px;border:2px solid var(--rim2);border-top-color:var(--lime);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideR{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── MODAL ── */
+.moverlay{position:fixed;inset:0;background:rgba(10,11,15,.88);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+.moverlay.on{opacity:1;pointer-events:all;}
+.modal{background:var(--ink2);border:1px solid var(--rim2);border-radius:var(--rxl);padding:26px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:fadeUp .22s ease;}
+.modal::-webkit-scrollbar{width:3px;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-hd h3{font-family:'Cabinet Grotesk',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.2px;}
+.mcl{width:28px;height:28px;border-radius:7px;border:1px solid var(--rim);background:var(--ink3);color:var(--txt2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.mcl:hover{color:var(--txt);border-color:var(--rim2);}
+.mft{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--rim);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9998;background:var(--surface2);border:1px solid var(--rim2);border-radius:var(--r);padding:11px 16px;display:flex;align-items:center;gap:8px;font-size:13px;transform:translateY(60px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:320px;}
+.toast.on{transform:translateY(0);}
+
+/* ── SLIDE PANEL ── */
+.slide{position:fixed;top:0;right:-440px;width:420px;height:100vh;background:var(--ink2);border-left:1px solid var(--rim2);z-index:400;transition:right .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:22px;}
+.slide.on{right:0;}
+.slide::-webkit-scrollbar{width:3px;}
+.slide-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.slide-hd h3{font-family:'Cabinet Grotesk',sans-serif;font-size:15px;font-weight:800;letter-spacing:-.2px;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{text-align:left;padding:10px 14px;font-size:9px;color:var(--txt3);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;border-bottom:1px solid var(--rim);}
+.tbl td{padding:10px 14px;border-bottom:1px solid rgba(148,163,255,0.04);color:var(--txt2);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(148,163,255,.02);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl-name{font-weight:600;color:var(--txt);font-size:13px;}
+.tbl-actions{display:flex;gap:5px;}
+.ic-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--rim);background:var(--ink3);color:var(--txt3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;font-size:11px;}
+.ic-btn:hover{border-color:var(--rim2);color:var(--txt);}
+.ic-btn.del:hover{border-color:rgba(255,107,107,.3);color:var(--coral);}
+.empty{text-align:center;padding:44px 20px;color:var(--txt3);}
+.empty .e-icon{font-size:30px;margin-bottom:10px;}
+.empty p{font-size:13px;line-height:1.6;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;background:var(--ink3);padding:4px;border-radius:var(--r);margin-bottom:16px;border:1px solid var(--rim);}
+.tab{flex:1;padding:7px 8px;border-radius:7px;font-size:11px;cursor:pointer;text-align:center;color:var(--txt3);transition:all .18s;font-weight:600;}
+.tab.on{background:var(--surface2);color:var(--lime);border:1px solid rgba(200,241,53,.18);}
+.tcont{display:none;}
+.tcont.on{display:block;animation:fadeUp .22s ease;}
+
+/* ── AI RESULT ── */
+.ai-box{background:rgba(200,241,53,.04);border:1px solid rgba(200,241,53,.15);border-radius:var(--r);padding:15px 17px;display:none;margin-top:13px;}
+.ai-box.on{display:block;animation:fadeUp .3s ease;}
+.ai-box-hd{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.ai-box-hd span{font-size:10px;color:var(--lime);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.ai-box-body{font-size:13px;color:var(--txt);line-height:1.8;white-space:pre-wrap;}
+
+/* ── HOME HERO ── */
+.hero{background:linear-gradient(135deg,rgba(91,127,255,.06),rgba(200,241,53,.04));border:1px solid var(--rim);border-radius:var(--rxl);padding:28px 30px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(200,241,53,.08) 0%,transparent 70%);}
+.hero h1{font-family:'Cabinet Grotesk',sans-serif;font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px;}
+.hero h1 em{color:var(--lime);font-style:normal;}
+.hero p{font-size:13px;color:var(--txt2);max-width:480px;line-height:1.7;margin-bottom:18px;}
+.hero-acts{display:flex;gap:9px;flex-wrap:wrap;}
+.mods-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;}
+.mod-card{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);padding:17px;cursor:pointer;transition:all .22s;position:relative;}
+.mod-card:hover{border-color:var(--rim2);transform:translateY(-2px);background:var(--ink3);}
+.mod-icon{font-size:20px;margin-bottom:11px;display:block;}
+.mod-card h3{font-family:'Cabinet Grotesk',sans-serif;font-size:13px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px;}
+.mod-card p{font-size:11px;color:var(--txt2);line-height:1.6;}
+.mod-arr{position:absolute;top:14px;right:14px;color:var(--txt3);font-size:13px;transition:transform .2s;}
+.mod-card:hover .mod-arr{transform:translate(2px,-2px);color:var(--lime);}
+
+/* ── NOTEBOOK ── */
+.nb-grid{display:grid;grid-template-columns:260px 1fr;gap:14px;height:calc(100vh - 200px);}
+.nb-list{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;}
+.nb-list-hd{padding:13px 14px;border-bottom:1px solid var(--rim);display:flex;align-items:center;justify-content:space-between;}
+.nb-list-hd span{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px;}
+.nb-entries{flex:1;overflow-y:auto;padding:8px;}
+.nb-entry{padding:10px 11px;border-radius:var(--r);cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:all .18s;}
+.nb-entry:hover{background:var(--ink3);border-color:var(--rim);}
+.nb-entry.on{background:rgba(200,241,53,.06);border-color:rgba(200,241,53,.2);}
+.nb-entry-title{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nb-entry-meta{font-size:10px;color:var(--txt3);}
+.nb-editor{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);display:flex;flex-direction:column;overflow:hidden;}
+.nb-toolbar{padding:11px 16px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:8px;}
+.nb-title-in{flex:1;background:transparent;border:none;color:var(--txt);font-family:'Cabinet Grotesk',sans-serif;font-size:18px;font-weight:800;outline:none;letter-spacing:-.3px;}
+.nb-title-in::placeholder{color:var(--txt3);}
+.nb-body{flex:1;padding:18px 20px;overflow-y:auto;}
+.nb-content{width:100%;height:100%;min-height:300px;background:transparent;border:none;color:var(--txt);font-family:'Instrument Sans',sans-serif;font-size:14px;line-height:1.8;resize:none;outline:none;}
+.nb-content::placeholder{color:var(--txt3);}
+.nb-meta-bar{padding:10px 18px;border-top:1px solid var(--rim);display:flex;gap:12px;align-items:center;font-size:11px;color:var(--txt3);}
+
+/* ── KANBAN ── */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:calc(100vh - 220px);}
+.kb-col{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);display:flex;flex-direction:column;overflow:hidden;}
+.kb-col-hd{padding:13px 14px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:8px;}
+.kb-col-title{font-size:12px;font-weight:700;color:var(--txt);}
+.kb-col-cnt{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;}
+.kb-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:7px;}
+.kb-card{background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:12px 13px;cursor:pointer;transition:all .18s;animation:fadeUp .22s ease;}
+.kb-card:hover{border-color:var(--rim2);transform:translateY(-1px);}
+.kb-card-title{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:6px;}
+.kb-card-meta{font-size:10px;color:var(--txt3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.kb-add{margin:8px;padding:8px;border-radius:var(--r);border:1px dashed var(--rim);background:transparent;color:var(--txt3);font-size:11px;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .18s;width:calc(100% - 16px);}
+.kb-add:hover{border-color:var(--rim2);color:var(--lime);}
+
+/* ── RESOURCE ── */
+.res-bar{background:var(--ink3);border-radius:99px;height:5px;overflow:hidden;margin-top:6px;}
+.res-fill{height:5px;border-radius:99px;transition:width .3s;}
+
+/* ── SCHEDULE CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:16px;}
+.cal-day{background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:9px 7px;cursor:pointer;transition:all .18s;text-align:center;}
+.cal-day:hover{border-color:var(--rim2);}
+.cal-day.on{background:rgba(200,241,53,.07);border-color:rgba(200,241,53,.3);}
+.cal-day.today{border-color:rgba(91,127,255,.35);}
+.cal-day-nm{font-size:9px;color:var(--txt3);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+.cal-day-n{font-family:'Cabinet Grotesk',sans-serif;font-size:16px;font-weight:800;}
+.cal-day.on .cal-day-n{color:var(--lime);}
+.cal-day.today .cal-day-n{color:var(--blue2);}
+.cal-day-c{font-size:10px;color:var(--txt3);margin-top:3px;}
+.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.slot{background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:9px;text-align:center;transition:all .18s;}
+.slot.free{cursor:pointer;}
+.slot.free:hover{background:rgba(200,241,53,.06);border-color:rgba(200,241,53,.25);}
+.slot.taken{background:rgba(255,107,107,.05);border-color:rgba(255,107,107,.18);cursor:not-allowed;}
+.slot-t{font-size:12px;font-weight:600;color:var(--txt);}
+.slot-s{font-size:10px;margin-top:3px;}
+.slot.free .slot-s{color:var(--teal);}
+.slot.taken .slot-s{color:var(--coral);}
+
+/* ── REQUESTS ── */
+.req-item{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--r);padding:13px 15px;display:flex;align-items:flex-start;gap:13px;animation:fadeUp .22s ease;margin-bottom:7px;}
+.req-item:hover{border-color:var(--rim2);}
+.req-prio{width:4px;border-radius:99px;align-self:stretch;flex-shrink:0;}
+.req-body{flex:1;min-width:0;}
+.req-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:4px;}
+.req-meta{font-size:11px;color:var(--txt3);display:flex;gap:10px;flex-wrap:wrap;}
+.req-acts{display:flex;gap:6px;flex-direction:column;align-items:flex-end;}
+
+/* ── SOP CARDS ── */
+.sop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.sop-card{background:var(--ink2);border:1px solid var(--rim);border-radius:var(--rl);padding:18px;cursor:pointer;transition:all .22s;}
+.sop-card:hover{border-color:var(--rim2);transform:translateY(-1px);}
+.sop-icon{font-size:22px;margin-bottom:12px;display:block;}
+.sop-title{font-family:'Cabinet Grotesk',sans-serif;font-size:14px;font-weight:800;margin-bottom:5px;letter-spacing:-.2px;}
+.sop-desc{font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:12px;}
+.sop-tags{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* ── AUDIT LOG ── */
+.audit-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(148,163,255,.04);}
+.audit-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.audit-body{flex:1;}
+.audit-action{font-size:12px;color:var(--txt);font-weight:500;}
+.audit-meta{font-size:10px;color:var(--txt3);margin-top:2px;}
+.audit-time{font-size:10px;color:var(--txt3);white-space:nowrap;}
+
+/* ── CHAT ── */
+.chat-msgs{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.cmsg{display:flex;gap:9px;animation:fadeUp .25s ease;}
+.cmsg.user{flex-direction:row-reverse;}
+.cav{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.cav.ai{background:var(--lime);color:var(--ink);font-family:'Cabinet Grotesk',sans-serif;}
+.cav.usr{background:var(--surface2);color:var(--txt2);}
+.cbub{max-width:72%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.7;background:var(--ink3);border:1px solid var(--rim);color:var(--txt);}
+.cmsg.user .cbub{background:rgba(200,241,53,.06);border-color:rgba(200,241,53,.18);}
+.cmeta{font-size:10px;color:var(--txt3);margin-top:4px;}
+.cmsg.user .cmeta{text-align:right;}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:tpulse 1.4s infinite;}
+.tdot:nth-child(2){animation-delay:.2s;}.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes tpulse{0%,80%,100%{opacity:.3;transform:scale(.8);}40%{opacity:1;transform:scale(1);}}
+.chat-input-area{padding:13px 22px 17px;border-top:1px solid var(--rim);background:var(--ink2);}
+.chat-mode-pills{display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap;}
+.cmpill{padding:4px 11px;border-radius:99px;font-size:10px;cursor:pointer;border:1px solid var(--rim);color:var(--txt3);background:var(--ink3);transition:all .18s;font-weight:600;}
+.cmpill.on{background:rgba(200,241,53,.08);color:var(--lime);border-color:rgba(200,241,53,.25);}
+.chat-row{display:flex;gap:8px;align-items:flex-end;}
+.chat-ta{flex:1;background:var(--ink3);border:1px solid var(--rim);border-radius:var(--rl);padding:10px 14px;color:var(--txt);font-family:'Instrument Sans',sans-serif;font-size:13px;resize:none;outline:none;max-height:120px;min-height:44px;line-height:1.5;transition:border-color .2s;}
+.chat-ta:focus{border-color:rgba(200,241,53,.3);}
+.chat-ta::placeholder{color:var(--txt3);}
+.send-b{width:42px;height:42px;border-radius:var(--r);border:none;background:var(--lime);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s;}
+.send-b:hover{background:var(--lime2);}
+.send-b:disabled{opacity:.4;cursor:not-allowed;}
+.qpills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:13px 0;}
+.qp{padding:6px 13px;border-radius:99px;font-size:11px;cursor:pointer;border:1px solid var(--rim);color:var(--txt2);background:var(--ink3);transition:all .18s;}
+.qp:hover{border-color:rgba(200,241,53,.25);color:var(--lime);}
+
+/* ── INDUSTRY MODAL ── */
+.ind-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:4px;}
+.ind-card{background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:14px 12px;cursor:pointer;text-align:center;transition:all .18s;}
+.ind-card:hover{border-color:var(--rim2);}
+.ind-card.on{background:rgba(200,241,53,.06);border-color:rgba(200,241,53,.3);}
+.ind-icon{font-size:22px;margin-bottom:6px;}
+.ind-name{font-size:11px;font-weight:700;color:var(--txt);}
+.ind-desc{font-size:10px;color:var(--txt3);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-glow"></div>
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="llogo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0b0f" stroke-width="2.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="llogo-name">Doctigo Timeguard</div>
+        <span class="llogo-tag">Universal Work Platform</span>
+      </div>
+    </div>
+    <div class="login-card">
+      <div class="auth-tabs">
+        <div class="auth-tab on" id="tab-si" onclick="authTab('signin')">Sign In</div>
+        <div class="auth-tab" id="tab-su" onclick="authTab('signup')">Register</div>
+      </div>
+      <!-- SIGN IN -->
+      <div id="form-si">
+        <div class="login-title">Welcome back</div>
+        <div class="login-sub">Sign in to your Doctigo Timeguard workspace</div>
+        <div class="auth-err" id="si-err"></div>
+        <div class="lf"><label>Email</label><input type="email" id="si-email" placeholder="you@company.com" autocomplete="email"></div>
+        <div class="lf"><label>Password</label><input type="password" id="si-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()"></div>
+        <button class="btn-auth" onclick="doSignIn()">Sign In →</button>
+        <div class="divider">or try demo</div>
+        <button class="demo-link" onclick="doDemo()">Continue with Demo Account</button>
+      </div>
+      <!-- SIGN UP -->
+      <div id="form-su" style="display:none;">
+        <div class="login-title">Create account</div>
+        <div class="login-sub">Start your Doctigo Timeguard workspace — free</div>
+        <div class="auth-err" id="su-err"></div>
+        <div class="fr" style="margin-bottom:0;">
+          <div class="lf"><label>Full Name</label><input type="text" id="su-name" placeholder="Arjun Sharma"></div>
+          <div class="lf"><label>Role / Title</label><input type="text" id="su-role" placeholder="Manager"></div>
+        </div>
+        <div class="lf"><label>Email</label><input type="email" id="su-email" placeholder="you@company.com"></div>
+        <div class="lf"><label>Organisation</label><input type="text" id="su-org" placeholder="Acme Corp"></div>
+        <div class="lf"><label>Password</label><input type="password" id="su-pass" placeholder="Min 6 chars" onkeydown="if(event.key==='Enter')doSignUp()"></div>
+        <button class="btn-auth" onclick="doSignUp()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0b0f" stroke-width="2.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+    <div><div class="sb-name">Doctigo Timeguard</div><div class="sb-ver">v1.0 · Universal</div></div>
+  </div>
+
+  <div class="sb-industry" onclick="openModal('modal-industry')">
+    <span class="sb-industry-icon" id="ind-icon">🏢</span>
+    <span class="sb-industry-name" id="ind-name">General</span>
+    <span class="sb-industry-change">Change</span>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Overview</div>
+    <div class="nav-it on" data-p="home" onclick="switchPanel('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    </div>
+    <div class="nav-it" data-p="ai" onclick="switchPanel('ai',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>AI Assistant
+      <span class="nav-badge">Live</span>
+    </div>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Core Modules</div>
+    <div class="nav-it" data-p="notebook" onclick="switchPanel('notebook',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Work Notebook
+    </div>
+    <div class="nav-it" data-p="tracker" onclick="switchPanel('tracker',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Case Tracker
+      <span class="nav-badge" id="tracker-badge">0</span>
+    </div>
+    <div class="nav-it" data-p="resources" onclick="switchPanel('resources',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Resource Manager
+    </div>
+    <div class="nav-it" data-p="schedule" onclick="switchPanel('schedule',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Asset Scheduler
+    </div>
+  </div>
+
+  <div class="nav-grp">
+    <div class="nav-lbl">Workflow</div>
+    <div class="nav-it" data-p="requests" onclick="switchPanel('requests',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Requests &amp; Approvals
+      <span class="nav-badge red" id="req-badge">0</span>
+    </div>
+    <div class="nav-it" data-p="sop" onclick="switchPanel('sop',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>SOP Templates
+    </div>
+    <div class="nav-it" data-p="analytics" onclick="switchPanel('analytics',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics &amp; Audit Log
+    </div>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-av" id="sb-av">TG</div>
+      <div style="flex:1;min-width:0;">
+        <div class="sb-uname" id="sb-name">Loading…</div>
+        <div class="sb-urole" id="sb-role">—</div>
+      </div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<main class="main">
+  <header class="topbar">
+    <div style="flex:1;">
+      <div class="topbar-title" id="tb-title">Dashboard</div>
+      <div class="topbar-sub" id="tb-sub">Doctigo Timeguard — Universal Work Platform</div>
+    </div>
+    <div class="status-pip"></div><span class="status-lbl">AI Online</span>
+    <button class="btn-prime" id="tb-action" onclick="switchPanel('ai',document.querySelector('[data-p=ai]'))">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ask AI
+    </button>
+  </header>
+
+  <!-- ─── HOME ─────────────────────────────────── -->
+  <div class="panel on" id="panel-home">
+    <div class="hero">
+      <h1>Welcome to <em>Doctigo Timeguard</em> 👋</h1>
+      <p>Your universal work management platform. Log work, track cases, manage resources, schedule assets, handle approvals, and run AI-powered workflows — for any industry, any team.</p>
+      <div class="hero-acts">
+        <button class="btn-prime" onclick="switchPanel('notebook',document.querySelector('[data-p=notebook]'))">Open Notebook</button>
+        <button class="btn-xs" onclick="switchPanel('tracker',document.querySelector('[data-p=tracker]'))">📦 Case Tracker</button>
+        <button class="btn-xs" onclick="openModal('modal-industry')">🏭 Set Industry</button>
+      </div>
+    </div>
+    <div class="stats4">
+      <div class="stat-c"><div class="stat-n" id="h-notes">0</div><div class="stat-l">Notebook Entries</div><div class="stat-t" id="h-notes-s">Start logging</div></div>
+      <div class="stat-c"><div class="stat-n" id="h-cases">0</div><div class="stat-l">Active Cases</div><div class="stat-t" id="h-cases-s">Track anything</div></div>
+      <div class="stat-c"><div class="stat-n" id="h-reqs">0</div><div class="stat-l">Open Requests</div><div class="stat-t" id="h-reqs-s">Pending review</div></div>
+      <div class="stat-c"><div class="stat-n" id="h-res">0</div><div class="stat-l">Resources Tracked</div><div class="stat-t" id="h-res-s">Manage inventory</div></div>
+    </div>
+    <div>
+      <div class="sh" style="margin-bottom:12px;"><div class="sh-l"><h2>All Modules</h2><p>Click any module to jump in</p></div></div>
+      <div class="mods-grid">
+        <div class="mod-card" onclick="switchPanel('notebook',document.querySelector('[data-p=notebook]'))"><span class="mod-icon">📓</span><h3>Work Notebook</h3><p>Digital journal — log tasks, observations, experiments, and outcomes with rich notes.</p><span class="mod-arr">↗</span></div>
+        <div class="mod-card" onclick="switchPanel('tracker',document.querySelector('[data-p=tracker]'))"><span class="mod-icon">📦</span><h3>Case Tracker</h3><p>Kanban-style lifecycle tracking for cases, clients, batches, patients, or any entity.</p><span class="mod-arr">↗</span></div>
+        <div class="mod-card" onclick="switchPanel('resources',document.querySelector('[data-p=resources]'))"><span class="mod-icon">🗃️</span><h3>Resource Manager</h3><p>Track stock, materials, budget, licenses — with low-level alerts and usage history.</p><span class="mod-arr">↗</span></div>
+        <div class="mod-card" onclick="switchPanel('schedule',document.querySelector('[data-p=schedule]'))"><span class="mod-icon">🔧</span><h3>Asset Scheduler</h3><p>Book rooms, machines, vehicles, or tools on a weekly calendar with conflict detection.</p><span class="mod-arr">↗</span></div>
+        <div class="mod-card" onclick="switchPanel('requests',document.querySelector('[data-p=requests]'))"><span class="mod-icon">✅</span><h3>Requests & Approvals</h3><p>Intake queue — submit, assign, track, and sign off work requests with digital approval.</p><span class="mod-arr">↗</span></div>
+        <div class="mod-card" onclick="switchPanel('sop',document.querySelector('[data-p=sop]'))"><span class="mod-icon">📋</span><h3>SOP Templates</h3><p>Reusable process templates — standardise any recurring procedure across your team.</p><span class="mod-arr">↗</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── NOTEBOOK ──────────────────────────────── -->
+  <div class="panel" id="panel-notebook" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>Work Notebook</h2><p>Universal digital journal — any field, any work</p></div>
+      <button class="btn-prime" onclick="newEntry()">+ New Entry</button>
+    </div>
+    <div class="nb-grid">
+      <div class="nb-list">
+        <div class="nb-list-hd">
+          <span>Entries</span>
+          <input class="sr" placeholder="Search…" id="nb-search" oninput="renderEntries()" style="width:120px;padding:5px 9px;font-size:11px;">
+        </div>
+        <div class="nb-entries" id="nb-entries-list">
+          <div class="empty"><div class="e-icon">📓</div><p>No entries yet.<br>Click + New Entry to start.</p></div>
+        </div>
+      </div>
+      <div class="nb-editor">
+        <div class="nb-toolbar">
+          <input class="nb-title-in" id="nb-title" placeholder="Entry title…" oninput="autoSaveEntry()">
+          <select class="fs" id="nb-tag" onchange="autoSaveEntry()" style="width:130px;">
+            <option value="">No tag</option>
+            <option>Research</option><option>Meeting</option><option>Experiment</option>
+            <option>Review</option><option>Planning</option><option>Report</option><option>Other</option>
+          </select>
+          <button class="btn-xs" onclick="deleteEntry()">🗑️</button>
+        </div>
+        <div class="nb-body">
+          <textarea class="nb-content" id="nb-content" placeholder="Start writing your entry… use this space to log observations, notes, results, meeting minutes, or any work record." oninput="autoSaveEntry()"></textarea>
+        </div>
+        <div class="nb-meta-bar">
+          <span id="nb-id-display">Select or create an entry</span>
+          <span style="margin-left:auto;" id="nb-saved">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── CASE TRACKER ──────────────────────────── -->
+  <div class="panel" id="panel-tracker" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>Case Tracker</h2><p>Drag cases through lifecycle stages</p></div>
+      <button class="btn-prime" onclick="openModal('modal-case')">+ New Case</button>
+    </div>
+    <div class="sh" style="gap:10px;">
+      <input class="sr" placeholder="Search cases…" id="case-search" oninput="renderKanban()" style="flex:1;">
+      <select class="fs" id="case-filter-type" onchange="renderKanban()" style="width:160px;"><option value="">All Types</option></select>
+    </div>
+    <div class="kanban" id="kanban-board"></div>
+  </div>
+
+  <!-- ─── RESOURCE MANAGER ─────────────────────── -->
+  <div class="panel" id="panel-resources" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>Resource Manager</h2><p>Track stock, materials, budget, and any inventory</p></div>
+      <button class="btn-prime" onclick="openModal('modal-resource')">+ Add Resource</button>
+    </div>
+    <div class="stats3">
+      <div class="stat-c"><div class="stat-n" id="res-total">0</div><div class="stat-l">Total Resources</div></div>
+      <div class="stat-c"><div class="stat-n" id="res-low" style="color:var(--coral)">0</div><div class="stat-l">Low Stock Alerts</div></div>
+      <div class="stat-c"><div class="stat-n" id="res-cats">0</div><div class="stat-l">Categories</div></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <input class="sr" placeholder="Search resources…" id="res-search" oninput="renderResources()" style="flex:1;">
+      <select class="fs" id="res-filter-cat" onchange="renderResources()" style="width:160px;"><option value="">All Categories</option></select>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="tbl" id="res-table">
+          <thead><tr><th>Resource</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Min Level</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+          <tbody id="res-tbody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="res-empty"><div class="e-icon">🗃️</div><p>No resources yet. Add your first resource.</p></div>
+    </div>
+  </div>
+
+  <!-- ─── ASSET SCHEDULER ───────────────────────── -->
+  <div class="panel" id="panel-schedule" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>Asset Scheduler</h2><p>Book tools, rooms, vehicles, and equipment</p></div>
+      <button class="btn-prime" onclick="openModal('modal-asset')">+ Add Asset</button>
+    </div>
+    <div class="card card-p">
+      <div class="sh" style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn-ghost" onclick="shiftCal(-1)">‹</button>
+          <span style="font-family:'Cabinet Grotesk',sans-serif;font-size:14px;font-weight:800;" id="cal-lbl">—</span>
+          <button class="btn-ghost" onclick="shiftCal(1)">›</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="fs" id="asset-filter" onchange="renderSlots()" style="width:180px;"><option value="">All Assets</option></select>
+          <button class="btn-ghost" onclick="calOff=0;renderCal()">Today</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-week"></div>
+      <div style="font-size:11px;color:var(--txt3);margin-bottom:10px;" id="slots-lbl">Select a day to view slots</div>
+      <div class="slot-grid" id="slots-grid"></div>
+    </div>
+    <div>
+      <div class="sh-l" style="margin-bottom:12px;"><h2>All Bookings</h2></div>
+      <div class="card"><div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Asset</th><th>Date</th><th>Time</th><th>Booked By</th><th>Purpose</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookings-tbody"></tbody></table></div><div class="empty" id="bookings-empty"><div class="e-icon">📅</div><p>No bookings yet.</p></div></div>
+    </div>
+  </div>
+
+  <!-- ─── REQUESTS & APPROVALS ─────────────────── -->
+  <div class="panel" id="panel-requests" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>Requests &amp; Approvals</h2><p>Intake queue — submit, track, and approve work requests</p></div>
+      <button class="btn-prime" onclick="openModal('modal-req')">+ New Request</button>
+    </div>
+    <div class="stats4">
+      <div class="stat-c"><div class="stat-n" id="rq-open" style="color:var(--amber)">0</div><div class="stat-l">Open</div></div>
+      <div class="stat-c"><div class="stat-n" id="rq-review" style="color:var(--blue2)">0</div><div class="stat-l">In Review</div></div>
+      <div class="stat-c"><div class="stat-n" id="rq-approved" style="color:var(--lime)">0</div><div class="stat-l">Approved</div></div>
+      <div class="stat-c"><div class="stat-n" id="rq-rejected" style="color:var(--coral)">0</div><div class="stat-l">Rejected</div></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <input class="sr" placeholder="Search requests…" id="req-search" oninput="renderRequests()" style="flex:1;">
+      <select class="fs" id="req-filter" onchange="renderRequests()" style="width:160px;"><option value="">All Status</option><option>Open</option><option>In Review</option><option>Approved</option><option>Rejected</option></select>
+    </div>
+    <div id="req-list"></div>
+    <div class="empty" id="req-empty"><div class="e-icon">✅</div><p>No requests yet. Submit the first one.</p></div>
+  </div>
+
+  <!-- ─── SOP TEMPLATES ─────────────────────────── -->
+  <div class="panel" id="panel-sop" style="display:none;">
+    <div class="sh">
+      <div class="sh-l"><h2>SOP Template Library</h2><p>Reusable process templates — standardise any procedure</p></div>
+      <button class="btn-prime" onclick="openModal('modal-sop')">+ Create Template</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:4px;">
+      <input class="sr" placeholder="Search templates…" id="sop-search" oninput="renderSOPs()" style="flex:1;">
+      <select class="fs" id="sop-filter" onchange="renderSOPs()" style="width:160px;"><option value="">All Categories</option></select>
+    </div>
+    <div class="sop-grid" id="sop-grid"></div>
+    <div class="empty" id="sop-empty"><div class="e-icon">📋</div><p>No templates yet. Create your first SOP.</p></div>
+  </div>
+
+  <!-- ─── ANALYTICS & AUDIT ─────────────────────── -->
+  <div class="panel" id="panel-analytics" style="display:none;">
+    <div class="sh-l"><h2>Analytics &amp; Audit Log</h2><p>Full accountability — every action logged and timestamped</p></div>
+    <div class="stats4">
+      <div class="stat-c"><div class="stat-n" id="an-entries">0</div><div class="stat-l">Notebook Entries</div></div>
+      <div class="stat-c"><div class="stat-n" id="an-cases">0</div><div class="stat-l">Total Cases</div></div>
+      <div class="stat-c"><div class="stat-n" id="an-reqs">0</div><div class="stat-l">Total Requests</div></div>
+      <div class="stat-c"><div class="stat-n" id="an-actions">0</div><div class="stat-l">Audit Events</div></div>
+    </div>
+    <div class="tabs">
+      <div class="tab on" onclick="sTab(this,'tab-audit')">Audit Log</div>
+      <div class="tab" onclick="sTab(this,'tab-casestat')">Case Status Breakdown</div>
+      <div class="tab" onclick="sTab(this,'tab-resstat')">Resource Health</div>
+    </div>
+    <div class="tcont on" id="tab-audit">
+      <div class="card card-p">
+        <div id="audit-log-list"></div>
+        <div class="empty" id="audit-empty"><div class="e-icon">📊</div><p>No audit events yet.</p></div>
+      </div>
+    </div>
+    <div class="tcont" id="tab-casestat">
+      <div class="card card-p" id="case-stat-content"></div>
+    </div>
+    <div class="tcont" id="tab-resstat">
+      <div class="card card-p" id="res-stat-content"></div>
+    </div>
+  </div>
+
+  <!-- ─── AI ASSISTANT ──────────────────────────── -->
+  <div class="panel" id="panel-ai" style="display:none;flex-direction:column;">
+    <div class="chat-msgs" id="chat-msgs">
+      <div style="text-align:center;padding:18px 0;">
+        <div style="font-size:28px;margin-bottom:10px;">🧠</div>
+        <div style="font-family:'Cabinet Grotesk',sans-serif;font-size:18px;font-weight:900;margin-bottom:6px;letter-spacing:-.3px;">Doctigo Timeguard AI</div>
+        <div style="font-size:13px;color:var(--txt2);max-width:380px;margin:0 auto;line-height:1.7;">Ask me anything about your work — analysis, planning, writing SOPs, case strategy, or resource recommendations.</div>
+        <div class="qpills">
+          <div class="qp" onclick="qSend('Help me write an SOP for onboarding a new team member')">📋 Write an SOP</div>
+          <div class="qp" onclick="qSend('Analyse my current workload and suggest prioritisation strategies')">⚡ Prioritise workload</div>
+          <div class="qp" onclick="qSend('What are best practices for resource management in a growing team?')">🗃️ Resource tips</div>
+          <div class="qp" onclick="qSend('How should I structure a case tracking system for a law firm?')">📦 Case structure</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="chat-mode-pills">
+        <div class="cmpill on" onclick="setMode(this,'general')">General</div>
+        <div class="cmpill" onclick="setMode(this,'planning')">Planning</div>
+        <div class="cmpill" onclick="setMode(this,'writing')">Writing</div>
+        <div class="cmpill" onclick="setMode(this,'analysis')">Analysis</div>
+        <div class="cmpill" onclick="setMode(this,'sop')">SOP Builder</div>
+      </div>
+      <div class="chat-row">
+        <textarea class="chat-ta" id="chat-in" placeholder="Ask Doctigo Timeguard AI anything…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+        <button class="send-b" id="send-b" onclick="sendChat()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ MODALS ════════════════════════════════════ -->
+
+<!-- Industry Preset -->
+<div class="moverlay" id="modal-industry">
+  <div class="modal">
+    <div class="modal-hd"><h3>Choose Your Industry Preset</h3><button class="mcl" onclick="closeModal('modal-industry')">✕</button></div>
+    <p style="font-size:12px;color:var(--txt2);margin-bottom:16px;">This configures default labels and terminology across the platform to match your field.</p>
+    <div class="ind-grid" id="ind-grid"></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-industry')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- New Case Modal -->
+<div class="moverlay" id="modal-case">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="case-modal-title">New Case</h3><button class="mcl" onclick="closeModal('modal-case')">✕</button></div>
+    <input type="hidden" id="case-edit-id">
+    <div class="fr">
+      <div class="form-g"><label>Title *</label><input class="fi" id="c-title" placeholder="Case title"></div>
+      <div class="form-g"><label>Type</label><input class="fi" id="c-type" placeholder="e.g. Client, Batch, Patient"></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Priority</label><select class="fs" id="c-prio"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+      <div class="form-g"><label>Assigned To</label><input class="fi" id="c-assign" placeholder="Person or team"></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Due Date</label><input class="fi" id="c-due" type="date"></div>
+      <div class="form-g"><label>Stage</label><select class="fs" id="c-stage"><option>Intake</option><option>In Progress</option><option>Review</option><option>Done</option></select></div>
+    </div>
+    <div class="form-g"><label>Description</label><textarea class="fta" id="c-desc" placeholder="Case details, context, background…"></textarea></div>
+    <div class="form-g"><label>Tags (comma separated)</label><input class="fi" id="c-tags" placeholder="urgent, legal, q1"></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-case')">Cancel</button><button class="btn-prime" onclick="saveCase()">Save Case</button></div>
+  </div>
+</div>
+
+<!-- Resource Modal -->
+<div class="moverlay" id="modal-resource">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="res-modal-title">Add Resource</h3><button class="mcl" onclick="closeModal('modal-resource')">✕</button></div>
+    <input type="hidden" id="res-edit-id">
+    <div class="fr">
+      <div class="form-g"><label>Resource Name *</label><input class="fi" id="r-name" placeholder="e.g. Paper A4, Server License"></div>
+      <div class="form-g"><label>Category</label><input class="fi" id="r-cat" placeholder="e.g. Stationery, Digital"></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Current Quantity *</label><input class="fi" id="r-qty" type="number" min="0" placeholder="100"></div>
+      <div class="form-g"><label>Unit</label><input class="fi" id="r-unit" placeholder="pcs / kg / litres / seats"></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Min Alert Level</label><input class="fi" id="r-min" type="number" min="0" placeholder="10"></div>
+      <div class="form-g"><label>Max Capacity</label><input class="fi" id="r-max" type="number" min="0" placeholder="500"></div>
+    </div>
+    <div class="form-g"><label>Notes</label><textarea class="fta" id="r-notes" placeholder="Supplier, location, notes…"></textarea></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-resource')">Cancel</button><button class="btn-prime" onclick="saveResource()">Save Resource</button></div>
+  </div>
+</div>
+
+<!-- Asset Modal -->
+<div class="moverlay" id="modal-asset">
+  <div class="modal">
+    <div class="modal-hd"><h3>Add Asset</h3><button class="mcl" onclick="closeModal('modal-asset')">✕</button></div>
+    <div class="fr">
+      <div class="form-g"><label>Asset Name *</label><input class="fi" id="a-name" placeholder="Conference Room A, Forklift 3"></div>
+      <div class="form-g"><label>Category</label><input class="fi" id="a-cat" placeholder="Room / Vehicle / Equipment"></div>
+    </div>
+    <div class="form-g"><label>Description</label><textarea class="fta" id="a-desc" placeholder="Capacity, specs, location…"></textarea></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-asset')">Cancel</button><button class="btn-prime" onclick="saveAsset()">Save Asset</button></div>
+  </div>
+</div>
+
+<!-- Book Slot Modal -->
+<div class="moverlay" id="modal-book">
+  <div class="modal">
+    <div class="modal-hd"><h3>Book Asset Slot</h3><button class="mcl" onclick="closeModal('modal-book')">✕</button></div>
+    <div class="fr">
+      <div class="form-g"><label>Asset *</label><select class="fs" id="bk-asset"><option value="">Select asset</option></select></div>
+      <div class="form-g"><label>Date *</label><input class="fi" id="bk-date" type="date"></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Time *</label><select class="fs" id="bk-time"></select></div>
+      <div class="form-g"><label>Booked By</label><input class="fi" id="bk-by" placeholder="Name"></div>
+    </div>
+    <div class="form-g"><label>Purpose / Notes</label><textarea class="fta" id="bk-purpose" placeholder="What is this booking for?"></textarea></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-book')">Cancel</button><button class="btn-prime" onclick="saveBooking()">Book Slot</button></div>
+  </div>
+</div>
+
+<!-- Request Modal -->
+<div class="moverlay" id="modal-req">
+  <div class="modal">
+    <div class="modal-hd"><h3>New Request</h3><button class="mcl" onclick="closeModal('modal-req')">✕</button></div>
+    <div class="form-g"><label>Request Title *</label><input class="fi" id="rq-title" placeholder="Brief title for this request"></div>
+    <div class="fr">
+      <div class="form-g"><label>Type</label><select class="fs" id="rq-type"><option>General</option><option>Purchase</option><option>Approval</option><option>Information</option><option>Access</option><option>Maintenance</option></select></div>
+      <div class="form-g"><label>Priority</label><select class="fs" id="rq-prio"><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="form-g"><label>Requested By</label><input class="fi" id="rq-by" placeholder="Your name"></div>
+      <div class="form-g"><label>Assigned To</label><input class="fi" id="rq-to" placeholder="Manager / team"></div>
+    </div>
+    <div class="form-g"><label>Due Date</label><input class="fi" id="rq-due" type="date"></div>
+    <div class="form-g"><label>Description *</label><textarea class="fta" id="rq-desc" placeholder="Full details of the request…"></textarea></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-req')">Cancel</button><button class="btn-prime" onclick="saveRequest()">Submit Request</button></div>
+  </div>
+</div>
+
+<!-- SOP Modal -->
+<div class="moverlay" id="modal-sop">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="sop-modal-title">Create SOP Template</h3><button class="mcl" onclick="closeModal('modal-sop')">✕</button></div>
+    <input type="hidden" id="sop-edit-id">
+    <div class="fr">
+      <div class="form-g"><label>Template Title *</label><input class="fi" id="sop-title" placeholder="e.g. Employee Onboarding"></div>
+      <div class="form-g"><label>Category</label><input class="fi" id="sop-cat" placeholder="HR / Operations / Safety"></div>
+    </div>
+    <div class="form-g"><label>Description</label><input class="fi" id="sop-desc" placeholder="What this SOP covers"></div>
+    <div class="form-g"><label>Steps (one per line) *</label><textarea class="fta" id="sop-steps" placeholder="Step 1: Prepare workstation&#10;Step 2: Send welcome email&#10;Step 3: Schedule intro call" style="min-height:110px;"></textarea></div>
+    <div class="form-g"><label>Owner</label><input class="fi" id="sop-owner" placeholder="Team or person responsible"></div>
+    <div class="mft"><button class="btn-ghost" onclick="closeModal('modal-sop')">Cancel</button><button class="btn-prime" onclick="saveSOP()">Save Template</button></div>
+  </div>
+</div>
+
+<!-- SOP View Slide -->
+<div class="slide" id="slide-sop">
+  <div class="slide-hd"><h3 id="slide-sop-title">SOP Template</h3><button class="mcl" onclick="closeSlide('slide-sop')">✕</button></div>
+  <div id="slide-sop-body"></div>
+</div>
+
+<!-- Case View Slide -->
+<div class="slide" id="slide-case">
+  <div class="slide-hd"><h3 id="slide-case-title">Case Details</h3><button class="mcl" onclick="closeSlide('slide-case')">✕</button></div>
+  <div id="slide-case-body"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg">Done!</span></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DB LAYER
+// ══════════════════════════════════════════════════
+const S = {
+  get: k => { try { return JSON.parse(localStorage.getItem('nx_'+k)); } catch { return null; } },
+  set: (k,v) => localStorage.setItem('nx_'+k, JSON.stringify(v)),
+  users: () => S.get('users') || [],
+  session: () => S.get('session'),
+  entries: () => S.get('entries') || [],
+  cases: () => S.get('cases') || [],
+  resources: () => S.get('resources') || [],
+  assets: () => S.get('assets') || [],
+  bookings: () => S.get('bookings') || [],
+  requests: () => S.get('requests') || [],
+  sops: () => S.get('sops') || [],
+  audit: () => S.get('audit') || [],
+};
+
+// ── AUDIT LOGGER ──
+function logAudit(action, detail, icon='📝') {
+  const user = S.session();
+  const log = S.audit();
+  log.unshift({ id: Date.now(), action, detail, user: user ? user.name : 'System', icon, ts: new Date().toISOString() });
+  if (log.length > 200) log.splice(200);
+  S.set('audit', log);
+}
+
+// ── TOAST ──
+function toast(msg, icon='✓') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').textContent = icon;
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 3000);
+}
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('on'); }
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+function openSlide(id) { document.getElementById(id).classList.add('on'); }
+function closeSlide(id) { document.getElementById(id).classList.remove('on'); }
+
+// ── TABS ──
+function sTab(el, id) {
+  const parent = el.closest('.panel, .card, .modal');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  parent.querySelectorAll('.tcont').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  const tc = document.getElementById(id);
+  if (tc) tc.classList.add('on');
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+function authTab(tab) {
+  document.getElementById('form-si').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('form-su').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('tab-si').className = 'auth-tab' + (tab === 'signin' ? ' on' : '');
+  document.getElementById('tab-su').className = 'auth-tab' + (tab === 'signup' ? ' on' : '');
+}
+
+function doSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pass = document.getElementById('si-pass').value;
+  const err = document.getElementById('si-err');
+  err.classList.remove('on');
+  if (!email || !pass) { err.textContent = 'Please fill all fields.'; err.classList.add('on'); return; }
+  const user = S.users().find(u => u.email === email && u.pass === btoa(pass));
+  if (!user) { err.textContent = 'Invalid email or password.'; err.classList.add('on'); return; }
+  S.set('session', user);
+  enterApp(user);
+}
+
+function doSignUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const role = document.getElementById('su-role').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const org = document.getElementById('su-org').value.trim();
+  const pass = document.getElementById('su-pass').value;
+  const err = document.getElementById('su-err');
+  err.classList.remove('on');
+  if (!name || !email || !pass) { err.textContent = 'Name, email and password are required.'; err.classList.add('on'); return; }
+  if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('on'); return; }
+  const users = S.users();
+  if (users.find(u => u.email === email)) { err.textContent = 'Account already exists with this email.'; err.classList.add('on'); return; }
+  const user = { id: Date.now(), name, role: role || 'Team Member', email, org: org || 'My Organisation', pass: btoa(pass), industry: 'general', created: new Date().toISOString() };
+  users.push(user); S.set('users', users);
+  S.set('session', user);
+  enterApp(user);
+}
+
+function doDemo() {
+  let users = S.users();
+  let demo = users.find(u => u.email === 'demo@timeguard.app');
+  if (!demo) {
+    demo = { id: 1, name: 'Alex Demo', role: 'Operations Manager', email: 'demo@timeguard.app', org: 'Demo Organisation', pass: btoa('demo123'), industry: 'general', created: new Date().toISOString() };
+    users.push(demo); S.set('users', users);
+    seedDemo(demo);
+  }
+  S.set('session', demo);
+  enterApp(demo);
+}
+
+function doLogout() {
+  S.set('session', null);
+  document.getElementById('login-screen').classList.remove('out');
+  document.getElementById('si-email').value = '';
+  document.getElementById('si-pass').value = '';
+}
+
+function enterApp(user) {
+  document.getElementById('login-screen').classList.add('out');
+  document.getElementById('sb-name').textContent = user.name;
+  document.getElementById('sb-role').textContent = (user.role || '') + (user.org ? ' · ' + user.org : '');
+  document.getElementById('sb-av').textContent = user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  applyIndustry(user.industry || 'general');
+  refreshAll();
+  calOff = 0; selectedDay = null; renderCal();
+}
+
+function seedDemo(u) {
+  S.set('entries', [
+    { id: 'E001', title: 'Q1 Planning Session', tag: 'Planning', content: 'Discussed roadmap priorities for Q1. Key focus areas: workflow automation, team expansion, and client onboarding improvements.\n\nActions:\n- Hire 2 operations staff by Feb\n- Launch new client portal by March\n- Weekly KPI reviews every Monday', created: new Date().toISOString(), updated: new Date().toISOString() },
+    { id: 'E002', title: 'Client Onboarding Meeting — Sharma & Co.', tag: 'Meeting', content: 'Met with Priya Sharma and team. Requirements gathered:\n- Custom reporting dashboard\n- API integration with their ERP\n- Weekly status calls\n\nNext steps: send proposal by Friday.', created: new Date().toISOString(), updated: new Date().toISOString() },
+    { id: 'E003', title: 'Process Improvement Notes', tag: 'Research', content: 'Identified 3 bottlenecks in current approval workflow:\n1. Manual email chains causing delays\n2. No visibility on request status\n3. No standard template for purchase approvals\n\nRecommendation: implement Doctigo Timeguard Requests module for all approvals.', created: new Date().toISOString(), updated: new Date().toISOString() },
+  ]);
+  S.set('cases', [
+    { id: 'C001', title: 'Sharma & Co. Onboarding', type: 'Client', prio: 'High', assign: 'Alex Demo', due: '2025-02-28', stage: 'In Progress', desc: 'Full onboarding of enterprise client Sharma & Co.', tags: 'enterprise,priority', created: new Date().toISOString() },
+    { id: 'C002', title: 'Office Renovation Approval', type: 'Internal', prio: 'Medium', assign: 'Operations', due: '2025-03-15', stage: 'Review', desc: 'Approval needed for office renovation budget.', tags: 'facilities', created: new Date().toISOString() },
+    { id: 'C003', title: 'Annual Compliance Audit', type: 'Compliance', prio: 'Critical', assign: 'Legal Team', due: '2025-01-31', stage: 'Intake', desc: 'Annual regulatory compliance review.', tags: 'legal,urgent', created: new Date().toISOString() },
+    { id: 'C004', title: 'Website Redesign', type: 'Project', prio: 'Low', assign: 'Design', due: '2025-04-30', stage: 'Done', desc: 'Completed website overhaul.', tags: 'design,completed', created: new Date().toISOString() },
+  ]);
+  S.set('resources', [
+    { id: 'R001', name: 'A4 Paper (Reams)', cat: 'Stationery', qty: 45, unit: 'reams', min: 10, max: 100, notes: 'Order from Staples', updated: new Date().toISOString() },
+    { id: 'R002', name: 'Software Licenses', cat: 'Digital', qty: 18, unit: 'seats', min: 5, max: 30, notes: 'Annual renewal in June', updated: new Date().toISOString() },
+    { id: 'R003', name: 'Server Storage', cat: 'Infrastructure', qty: 250, unit: 'GB', min: 50, max: 500, notes: 'Cloud storage bucket', updated: new Date().toISOString() },
+    { id: 'R004', name: 'Printer Ink Cartridges', cat: 'Stationery', qty: 3, unit: 'units', min: 5, max: 20, notes: 'HP 305XL — URGENT reorder', updated: new Date().toISOString() },
+  ]);
+  S.set('assets', [
+    { id: 'A001', name: 'Conference Room A', cat: 'Room', desc: '12-person capacity, projector, whiteboard' },
+    { id: 'A002', name: 'Delivery Van #1', cat: 'Vehicle', desc: 'White Ford Transit — registration MH02AB1234' },
+    { id: 'A003', name: 'Laptop Pool Unit 3', cat: 'Equipment', desc: 'Dell XPS 15, available for loan' },
+  ]);
+  const today = new Date().toISOString().split('T')[0];
+  S.set('bookings', [
+    { id: 'BK001', assetId: 'A001', assetName: 'Conference Room A', date: today, time: '10:00 AM', by: 'Alex Demo', purpose: 'Q1 kickoff meeting', status: 'Confirmed', created: new Date().toISOString() },
+    { id: 'BK002', assetId: 'A003', assetName: 'Laptop Pool Unit 3', date: today, time: '02:00 PM', by: 'Priya Shah', purpose: 'Client demo', status: 'Confirmed', created: new Date().toISOString() },
+  ]);
+  S.set('requests', [
+    { id: 'RQ001', title: 'Purchase new ergonomic chairs', type: 'Purchase', prio: 'Medium', by: 'HR Team', to: 'Alex Demo', due: '2025-02-10', desc: 'Need 5 new ergonomic chairs for the new joiners starting in February.', status: 'Open', created: new Date().toISOString() },
+    { id: 'RQ002', title: 'IT access for Priya Shah', type: 'Access', prio: 'High', by: 'Priya Shah', to: 'IT Admin', due: '2025-01-25', desc: 'New hire needs access to CRM, email, and Doctigo Timeguard platform.', status: 'In Review', created: new Date().toISOString() },
+    { id: 'RQ003', title: 'Q4 Report sign-off', type: 'Approval', prio: 'High', by: 'Finance', to: 'Alex Demo', due: '2025-01-30', desc: 'Q4 financial report ready for final approval before board submission.', status: 'Approved', created: new Date().toISOString() },
+  ]);
+  S.set('sops', [
+    { id: 'SOP001', title: 'Employee Onboarding', cat: 'HR', desc: 'Standard procedure for onboarding all new hires', steps: 'Prepare workstation and equipment\nCreate email and system accounts\nSend welcome email with first-day instructions\nSchedule intro calls with team leads\nAssign buddy / mentor\nComplete compliance training\nWeek 1 check-in meeting', owner: 'HR Team', created: new Date().toISOString() },
+    { id: 'SOP002', title: 'Client Intake Process', cat: 'Operations', desc: 'How to onboard a new client from first contact to active status', steps: 'Receive and log client enquiry\nSchedule discovery call within 48 hours\nConduct needs assessment\nPrepare and send proposal\nCollect signed agreement\nCreate client case in tracker\nAssign account manager\nSend welcome kit', owner: 'Sales & Ops', created: new Date().toISOString() },
+    { id: 'SOP003', title: 'Purchase Request Approval', cat: 'Finance', desc: 'Process for submitting and approving purchase requests', steps: 'Submit request via Requests module\nManager reviews within 2 business days\nFor amounts over ₹50k: Finance Director approval required\nRaise purchase order\nSend PO to supplier\nReceive and verify goods\nProcess payment\nUpdate resource inventory', owner: 'Finance Team', created: new Date().toISOString() },
+  ]);
+  logAudit('Demo account initialised', 'Seeded with sample data', '🚀');
+}
+
+// ══════════════════════════════════════════════════
+// INDUSTRY PRESETS
+// ══════════════════════════════════════════════════
+const INDUSTRIES = [
+  { id: 'general', icon: '🏢', name: 'General', desc: 'Any organisation', terms: {} },
+  { id: 'healthcare', icon: '🏥', name: 'Healthcare', desc: 'Clinics & hospitals', terms: { cases: 'Patients', resources: 'Supplies', assets: 'Equipment' } },
+  { id: 'legal', icon: '⚖️', name: 'Legal', desc: 'Law firms & CROs', terms: { cases: 'Matters', assets: 'Rooms' } },
+  { id: 'manufacturing', icon: '🏭', name: 'Manufacturing', desc: 'Production & factories', terms: { cases: 'Batches', resources: 'Materials', assets: 'Machines' } },
+  { id: 'education', icon: '🎓', name: 'Education', desc: 'Schools & colleges', terms: { cases: 'Students', resources: 'Supplies', assets: 'Classrooms' } },
+  { id: 'finance', icon: '💰', name: 'Finance', desc: 'Banks & fintech', terms: { cases: 'Accounts' } },
+  { id: 'realestate', icon: '🏗️', name: 'Real Estate', desc: 'Property & construction', terms: { cases: 'Properties', assets: 'Machinery' } },
+  { id: 'hospitality', icon: '🍽️', name: 'Hospitality', desc: 'Hotels & restaurants', terms: { cases: 'Reservations', assets: 'Rooms' } },
+  { id: 'tech', icon: '💻', name: 'Technology', desc: 'Software & startups', terms: { cases: 'Tickets', assets: 'Servers' } },
+];
+
+let currentIndustry = INDUSTRIES[0];
+
+function buildIndGrid() {
+  const g = document.getElementById('ind-grid');
+  g.innerHTML = INDUSTRIES.map(ind => `
+    <div class="ind-card ${ind.id === currentIndustry.id ? 'on' : ''}" onclick="selectIndustry('${ind.id}')">
+      <div class="ind-icon">${ind.icon}</div>
+      <div class="ind-name">${ind.name}</div>
+      <div class="ind-desc">${ind.desc}</div>
+    </div>`).join('');
+}
+
+function selectIndustry(id) {
+  const ind = INDUSTRIES.find(i => i.id === id);
+  if (!ind) return;
+  applyIndustry(id);
+  const user = S.session();
+  if (user) { const users = S.users(); const idx = users.findIndex(u => u.id === user.id); if (idx >= 0) { users[idx].industry = id; S.set('users', users); S.set('session', users[idx]); } }
+  closeModal('modal-industry');
+  toast('Industry set to ' + ind.name);
+  logAudit('Industry changed', 'Set to ' + ind.name, '🏭');
+}
+
+function applyIndustry(id) {
+  const ind = INDUSTRIES.find(i => i.id === id) || INDUSTRIES[0];
+  currentIndustry = ind;
+  document.getElementById('ind-icon').textContent = ind.icon;
+  document.getElementById('ind-name').textContent = ind.name;
+  buildIndGrid();
+}
+
+// ══════════════════════════════════════════════════
+// PANEL SWITCHING
+// ══════════════════════════════════════════════════
+const PANELS = {
+  home: ['Dashboard', 'Overview & quick access'],
+  notebook: ['Work Notebook', 'Universal digital journal'],
+  tracker: ['Case Tracker', 'Lifecycle management for any entity'],
+  resources: ['Resource Manager', 'Stock, materials & inventory tracking'],
+  schedule: ['Asset Scheduler', 'Book tools, rooms & equipment'],
+  requests: ['Requests & Approvals', 'Intake queue & sign-off workflow'],
+  sop: ['SOP Template Library', 'Standardise recurring procedures'],
+  analytics: ['Analytics & Audit Log', 'Full accountability & insights'],
+  ai: ['AI Assistant', 'Powered by Claude'],
+};
+
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => { p.style.display = 'none'; p.classList.remove('on'); });
+  const p = document.getElementById('panel-' + id);
+  p.style.display = 'flex'; p.classList.add('on');
+  document.querySelectorAll('.nav-it').forEach(n => n.classList.remove('on'));
+  if (el) el.classList.add('on');
+  const t = PANELS[id] || [id, ''];
+  document.getElementById('tb-title').textContent = t[0];
+  document.getElementById('tb-sub').textContent = t[1];
+  if (id === 'tracker') renderKanban();
+  if (id === 'resources') renderResources();
+  if (id === 'schedule') { renderCal(); renderBookings(); populateAssetFilter(); }
+  if (id === 'requests') renderRequests();
+  if (id === 'sop') renderSOPs();
+  if (id === 'analytics') renderAnalytics();
+  if (id === 'notebook') renderEntries();
+}
+
+// ══════════════════════════════════════════════════
+// STATS REFRESH
+// ══════════════════════════════════════════════════
+function refreshAll() {
+  const notes = S.entries().length;
+  const cases = S.cases().filter(c => c.stage !== 'Done').length;
+  const reqs = S.requests().filter(r => r.status === 'Open' || r.status === 'In Review').length;
+  const res = S.resources().length;
+  document.getElementById('h-notes').textContent = notes;
+  document.getElementById('h-cases').textContent = cases;
+  document.getElementById('h-reqs').textContent = reqs;
+  document.getElementById('h-res').textContent = res;
+  document.getElementById('h-notes-s').textContent = notes ? notes + ' total entries' : 'Start logging';
+  document.getElementById('h-cases-s').textContent = cases ? cases + ' active' : 'Track anything';
+  document.getElementById('h-reqs-s').textContent = reqs ? reqs + ' pending' : 'All clear';
+  document.getElementById('h-res-s').textContent = res ? res + ' items' : 'Manage inventory';
+  document.getElementById('tracker-badge').textContent = S.cases().length;
+  document.getElementById('req-badge').textContent = reqs;
+}
+
+// ══════════════════════════════════════════════════
+// NOTEBOOK
+// ══════════════════════════════════════════════════
+let activeEntry = null;
+let saveTimer = null;
+
+function renderEntries() {
+  const q = (document.getElementById('nb-search') || {}).value?.toLowerCase() || '';
+  const entries = S.entries().filter(e => !q || (e.title + e.content).toLowerCase().includes(q));
+  const list = document.getElementById('nb-entries-list');
+  if (!entries.length) { list.innerHTML = '<div class="empty"><div class="e-icon">📓</div><p>No entries yet.<br>Click + New Entry to start.</p></div>'; return; }
+  list.innerHTML = entries.map(e => `
+    <div class="nb-entry ${activeEntry === e.id ? 'on' : ''}" onclick="openEntry('${e.id}')">
+      <div class="nb-entry-title">${e.title || 'Untitled'}</div>
+      <div class="nb-entry-meta">${e.tag ? '<span style="color:var(--lime);margin-right:5px;">' + e.tag + '</span>' : ''}${new Date(e.updated).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+    </div>`).join('');
+}
+
+function openEntry(id) {
+  const entry = S.entries().find(e => e.id === id);
+  if (!entry) return;
+  activeEntry = id;
+  document.getElementById('nb-title').value = entry.title || '';
+  document.getElementById('nb-content').value = entry.content || '';
+  document.getElementById('nb-tag').value = entry.tag || '';
+  document.getElementById('nb-id-display').textContent = 'ID: ' + entry.id;
+  document.getElementById('nb-saved').textContent = 'Saved ' + new Date(entry.updated).toLocaleTimeString();
+  renderEntries();
+}
+
+function newEntry() {
+  const id = 'E' + String(S.entries().length + 1).padStart(3, '0') + '_' + Date.now();
+  const entry = { id, title: '', tag: '', content: '', created: new Date().toISOString(), updated: new Date().toISOString() };
+  const entries = S.entries();
+  entries.unshift(entry); S.set('entries', entries);
+  openEntry(id);
+  logAudit('Notebook entry created', id, '📓');
+  refreshAll();
+}
+
+function autoSaveEntry() {
+  if (!activeEntry) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const entries = S.entries();
+    const idx = entries.findIndex(e => e.id === activeEntry);
+    if (idx < 0) return;
+    entries[idx].title = document.getElementById('nb-title').value;
+    entries[idx].content = document.getElementById('nb-content').value;
+    entries[idx].tag = document.getElementById('nb-tag').value;
+    entries[idx].updated = new Date().toISOString();
+    S.set('entries', entries);
+    document.getElementById('nb-saved').textContent = 'Saved at ' + new Date().toLocaleTimeString();
+    renderEntries();
+  }, 600);
+}
+
+function deleteEntry() {
+  if (!activeEntry) return;
+  if (!confirm('Delete this entry?')) return;
+  S.set('entries', S.entries().filter(e => e.id !== activeEntry));
+  activeEntry = null;
+  document.getElementById('nb-title').value = '';
+  document.getElementById('nb-content').value = '';
+  document.getElementById('nb-tag').value = '';
+  document.getElementById('nb-id-display').textContent = 'Select or create an entry';
+  document.getElementById('nb-saved').textContent = '—';
+  renderEntries(); refreshAll();
+  logAudit('Notebook entry deleted', '', '🗑️');
+  toast('Entry deleted', '🗑️');
+}
+
+// ══════════════════════════════════════════════════
+// CASE TRACKER (KANBAN)
+// ══════════════════════════════════════════════════
+const STAGES = ['Intake', 'In Progress', 'Review', 'Done'];
+const STAGE_COLORS = { Intake: 'pill-blue', 'In Progress': 'pill-amber', Review: 'pill-purple', Done: 'pill-teal' };
+const PRIO_COLORS = { Low: 'pill-teal', Medium: 'pill-blue', High: 'pill-amber', Critical: 'pill-coral' };
+
+function renderKanban() {
+  const q = (document.getElementById('case-search') || {}).value?.toLowerCase() || '';
+  const tf = (document.getElementById('case-filter-type') || {}).value || '';
+  const all = S.cases();
+  // update type filter options
+  const types = [...new Set(all.map(c => c.type).filter(Boolean))];
+  const tsel = document.getElementById('case-filter-type');
+  const curVal = tsel.value;
+  tsel.innerHTML = '<option value="">All Types</option>' + types.map(t => `<option ${t === curVal ? 'selected' : ''}>${t}</option>`).join('');
+  const filtered = all.filter(c => (!q || (c.title + c.desc + c.tags).toLowerCase().includes(q)) && (!tf || c.type === tf));
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = STAGES.map(stage => {
+    const cards = filtered.filter(c => c.stage === stage);
+    return `<div class="kb-col">
+      <div class="kb-col-hd">
+        <span class="kb-col-title">${stage}</span>
+        <span class="kb-col-cnt pill ${STAGE_COLORS[stage]}">${cards.length}</span>
+      </div>
+      <div class="kb-cards">
+        ${cards.map(c => `
+          <div class="kb-card" onclick="viewCase('${c.id}')">
+            <div class="kb-card-title">${c.title}</div>
+            <div class="kb-card-meta">
+              <span class="pill ${PRIO_COLORS[c.prio] || 'pill-blue'}">${c.prio}</span>
+              ${c.type ? '<span>' + c.type + '</span>' : ''}
+              ${c.assign ? '<span>→ ' + c.assign + '</span>' : ''}
+              ${c.due ? '<span>📅 ' + c.due + '</span>' : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+      <button class="kb-add" onclick="openNewCaseInStage('${stage}')">+ Add to ${stage}</button>
+    </div>`;
+  }).join('');
+}
+
+function openNewCaseInStage(stage) {
+  document.getElementById('c-stage').value = stage;
+  document.getElementById('c-title').value = '';
+  document.getElementById('c-desc').value = '';
+  document.getElementById('c-tags').value = '';
+  document.getElementById('case-edit-id').value = '';
+  document.getElementById('case-modal-title').textContent = 'New Case';
+  openModal('modal-case');
+}
+
+function saveCase() {
+  const title = document.getElementById('c-title').value.trim();
+  if (!title) { toast('Title is required', '⚠️'); return; }
+  const editId = document.getElementById('case-edit-id').value;
+  const c = {
+    id: editId || 'C' + Date.now(),
+    title,
+    type: document.getElementById('c-type').value,
+    prio: document.getElementById('c-prio').value,
+    assign: document.getElementById('c-assign').value,
+    due: document.getElementById('c-due').value,
+    stage: document.getElementById('c-stage').value,
+    desc: document.getElementById('c-desc').value,
+    tags: document.getElementById('c-tags').value,
+    created: editId ? (S.cases().find(x => x.id === editId) || {}).created || new Date().toISOString() : new Date().toISOString(),
+  };
+  let cases = S.cases();
+  if (editId) cases = cases.map(x => x.id === editId ? c : x); else cases.push(c);
+  S.set('cases', cases);
+  closeModal('modal-case');
+  renderKanban(); refreshAll();
+  logAudit(editId ? 'Case updated' : 'Case created', c.title, '📦');
+  toast(editId ? 'Case updated' : 'Case created');
+}
+
+function viewCase(id) {
+  const c = S.cases().find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('slide-case-title').textContent = c.title;
+  document.getElementById('slide-case-body').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <span class="pill ${PRIO_COLORS[c.prio]}">${c.prio} Priority</span>
+      <span class="pill ${STAGE_COLORS[c.stage]}">${c.stage}</span>
+      ${c.type ? '<span class="pill pill-blue">' + c.type + '</span>' : ''}
+    </div>
+    ${c.desc ? '<div style="font-size:13px;color:var(--txt2);line-height:1.7;margin-bottom:16px;">' + c.desc + '</div>' : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+      ${iBox('Assigned To', c.assign || '—')}
+      ${iBox('Due Date', c.due || '—')}
+      ${iBox('Case ID', c.id)}
+      ${iBox('Created', new Date(c.created).toLocaleDateString('en-IN'))}
+    </div>
+    ${c.tags ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">' + c.tags.split(',').map(t => '<span class="pill pill-blue">' + t.trim() + '</span>').join('') + '</div>' : ''}
+    <div style="margin-bottom:10px;font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Move Stage</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;">
+      ${STAGES.map(s => `<button class="btn-xs ${c.stage === s ? '' : ''}" style="${c.stage===s?'border-color:rgba(200,241,53,.4);color:var(--lime);':''}" onclick="moveCase('${id}','${s}')">${s}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-prime" style="flex:1;justify-content:center;" onclick="editCase('${id}')">✏️ Edit</button>
+      <button class="btn-danger" onclick="deleteCase('${id}')">🗑️ Delete</button>
+    </div>`;
+  openSlide('slide-case');
+}
+
+function moveCase(id, stage) {
+  let cases = S.cases();
+  cases = cases.map(c => c.id === id ? { ...c, stage } : c);
+  S.set('cases', cases);
+  const c = cases.find(x => x.id === id);
+  viewCase(id); renderKanban(); refreshAll();
+  logAudit('Case moved to ' + stage, c ? c.title : id, '→');
+  toast('Moved to ' + stage);
+}
+
+function editCase(id) {
+  const c = S.cases().find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('case-edit-id').value = id;
+  document.getElementById('case-modal-title').textContent = 'Edit Case';
+  document.getElementById('c-title').value = c.title;
+  document.getElementById('c-type').value = c.type || '';
+  document.getElementById('c-prio').value = c.prio;
+  document.getElementById('c-assign').value = c.assign || '';
+  document.getElementById('c-due').value = c.due || '';
+  document.getElementById('c-stage').value = c.stage;
+  document.getElementById('c-desc').value = c.desc || '';
+  document.getElementById('c-tags').value = c.tags || '';
+  closeSlide('slide-case');
+  openModal('modal-case');
+}
+
+function deleteCase(id) {
+  if (!confirm('Delete this case?')) return;
+  S.set('cases', S.cases().filter(c => c.id !== id));
+  closeSlide('slide-case');
+  renderKanban(); refreshAll();
+  logAudit('Case deleted', id, '🗑️');
+  toast('Case deleted', '🗑️');
+}
+
+function iBox(label, val) {
+  return `<div style="background:var(--ink3);border:1px solid var(--rim);border-radius:var(--r);padding:9px 11px;"><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;">${label}</div><div style="font-size:13px;font-weight:600;color:var(--txt);">${val}</div></div>`;
+}
+
+// ══════════════════════════════════════════════════
+// RESOURCE MANAGER
+// ══════════════════════════════════════════════════
+function renderResources() {
+  const q = (document.getElementById('res-search') || {}).value?.toLowerCase() || '';
+  const cf = (document.getElementById('res-filter-cat') || {}).value || '';
+  const all = S.resources();
+  const cats = [...new Set(all.map(r => r.cat).filter(Boolean))];
+  const csel = document.getElementById('res-filter-cat');
+  const curCat = csel.value;
+  csel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option ${c === curCat ? 'selected' : ''}>${c}</option>`).join('');
+  const filtered = all.filter(r => (!q || (r.name + r.cat).toLowerCase().includes(q)) && (!cf || r.cat === cf));
+  const tbody = document.getElementById('res-tbody');
+  const empty = document.getElementById('res-empty');
+  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = 'block'; }
+  else {
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(r => {
+      const pct = r.max ? Math.min(100, Math.round((r.qty / r.max) * 100)) : null;
+      const isLow = r.min && r.qty <= r.min;
+      const statusPill = isLow ? '<span class="pill pill-coral">Low Stock</span>' : '<span class="pill pill-lime">OK</span>';
+      const barColor = isLow ? 'var(--coral)' : r.qty / r.max > 0.7 ? 'var(--lime)' : 'var(--amber)';
+      return `<tr>
+        <td><div class="tbl-name">${r.name}</div>${r.notes ? '<div style="font-size:10px;color:var(--txt3);margin-top:2px;">' + r.notes.slice(0, 40) + '</div>' : ''}</td>
+        <td><span class="pill pill-blue">${r.cat || '—'}</span></td>
+        <td><div style="font-weight:700;font-size:14px;color:${isLow ? 'var(--coral)' : 'var(--txt)'};">${r.qty}</div>${pct !== null ? '<div class="res-bar"><div class="res-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : ''}</td>
+        <td>${r.unit || '—'}</td>
+        <td>${r.min || '—'}</td>
+        <td>${statusPill}</td>
+        <td style="font-size:11px;color:var(--txt3);">${new Date(r.updated).toLocaleDateString('en-IN')}</td>
+        <td><div class="tbl-actions">
+          <button class="ic-btn" onclick="adjustQty('${r.id}')" title="Adjust">±</button>
+          <button class="ic-btn" onclick="editResource('${r.id}')" title="Edit">✏️</button>
+          <button class="ic-btn del" onclick="deleteResource('${r.id}')" title="Delete">🗑️</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+  const low = all.filter(r => r.min && r.qty <= r.min).length;
+  document.getElementById('res-total').textContent = all.length;
+  document.getElementById('res-low').textContent = low;
+  document.getElementById('res-cats').textContent = [...new Set(all.map(r => r.cat).filter(Boolean))].length;
+}
+
+function saveResource() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { toast('Resource name is required', '⚠️'); return; }
+  const editId = document.getElementById('res-edit-id').value;
+  const r = {
+    id: editId || 'R' + Date.now(),
+    name, cat: document.getElementById('r-cat').value,
+    qty: parseFloat(document.getElementById('r-qty').value) || 0,
+    unit: document.getElementById('r-unit').value,
+    min: parseFloat(document.getElementById('r-min').value) || 0,
+    max: parseFloat(document.getElementById('r-max').value) || 0,
+    notes: document.getElementById('r-notes').value,
+    updated: new Date().toISOString(),
+  };
+  let res = S.resources();
+  if (editId) res = res.map(x => x.id === editId ? r : x); else res.push(r);
+  S.set('resources', res);
+  closeModal('modal-resource');
+  renderResources(); refreshAll();
+  logAudit(editId ? 'Resource updated' : 'Resource added', name, '🗃️');
+  toast(editId ? 'Resource updated' : 'Resource added');
+}
+
+function editResource(id) {
+  const r = S.resources().find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('res-edit-id').value = id;
+  document.getElementById('res-modal-title').textContent = 'Edit Resource';
+  document.getElementById('r-name').value = r.name;
+  document.getElementById('r-cat').value = r.cat || '';
+  document.getElementById('r-qty').value = r.qty;
+  document.getElementById('r-unit').value = r.unit || '';
+  document.getElementById('r-min').value = r.min || '';
+  document.getElementById('r-max').value = r.max || '';
+  document.getElementById('r-notes').value = r.notes || '';
+  openModal('modal-resource');
+}
+
+function adjustQty(id) {
+  const r = S.resources().find(x => x.id === id);
+  if (!r) return;
+  const adj = prompt(`Current: ${r.qty} ${r.unit || ''}. Enter new quantity:`);
+  if (adj === null) return;
+  const newQty = parseFloat(adj);
+  if (isNaN(newQty)) { toast('Invalid quantity', '⚠️'); return; }
+  let res = S.resources();
+  res = res.map(x => x.id === id ? { ...x, qty: newQty, updated: new Date().toISOString() } : x);
+  S.set('resources', res);
+  renderResources();
+  logAudit('Resource quantity adjusted', r.name + ' → ' + newQty, '±');
+  toast('Quantity updated');
+}
+
+function deleteResource(id) {
+  if (!confirm('Delete this resource?')) return;
+  const r = S.resources().find(x => x.id === id);
+  S.set('resources', S.resources().filter(x => x.id !== id));
+  renderResources(); refreshAll();
+  logAudit('Resource deleted', r ? r.name : id, '🗑️');
+  toast('Resource deleted', '🗑️');
+}
+
+// ══════════════════════════════════════════════════
+// ASSET SCHEDULER
+// ══════════════════════════════════════════════════
+let calOff = 0, selectedDay = null;
+
+function renderCal() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const start = new Date(today); start.setDate(today.getDate() - today.getDay() + calOff * 7);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const bookings = S.bookings();
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const ds = d.toISOString().split('T')[0];
+    const cnt = bookings.filter(b => b.date === ds).length;
+    const isT = d.getTime() === today.getTime();
+    const isSel = selectedDay === ds;
+    html += `<div class="cal-day${isSel ? ' on' : ''}${isT ? ' today' : ''}" onclick="selectDay('${ds}')">
+      <div class="cal-day-nm">${days[d.getDay()]}</div>
+      <div class="cal-day-n">${d.getDate()}</div>
+      <div class="cal-day-c">${cnt ? cnt + ' booked' : '—'}</div>
+    </div>`;
+  }
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  document.getElementById('cal-week').innerHTML = html;
+  document.getElementById('cal-lbl').textContent = `${start.getDate()} ${months[start.getMonth()]} — ${end.getDate()} ${months[end.getMonth()]} ${end.getFullYear()}`;
+  if (selectedDay) renderSlots();
+}
+
+function shiftCal(dir) { calOff += dir; renderCal(); }
+
+function selectDay(ds) {
+  selectedDay = ds;
+  const d = new Date(ds + 'T00:00:00');
+  document.getElementById('slots-lbl').textContent = `Slots for ${d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}`;
+  renderCal(); renderSlots();
+}
+
+const TIME_SLOTS = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'];
+
+function renderSlots() {
+  if (!selectedDay) return;
+  const assetF = (document.getElementById('asset-filter') || {}).value || '';
+  const bookings = S.bookings().filter(b => b.date === selectedDay && (!assetF || b.assetId === assetF));
+  const taken = new Map();
+  bookings.forEach(b => taken.set(b.time, b));
+  document.getElementById('slots-grid').innerHTML = TIME_SLOTS.map(t => {
+    const bk = taken.get(t);
+    return `<div class="slot ${bk ? 'taken' : 'free'}" onclick="${bk ? '' : 'openBookSlot(\'' + selectedDay + '\',\'' + t + '\')'}">
+      <div class="slot-t">${t}</div>
+      <div class="slot-s">${bk ? '● ' + (bk.assetName || 'Booked') : '● Available'}</div>
+    </div>`;
+  }).join('');
+}
+
+function populateAssetFilter() {
+  const assets = S.assets();
+  const sel = document.getElementById('asset-filter');
+  sel.innerHTML = '<option value="">All Assets</option>' + assets.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+}
+
+function saveAsset() {
+  const name = document.getElementById('a-name').value.trim();
+  if (!name) { toast('Asset name is required', '⚠️'); return; }
+  const assets = S.assets();
+  assets.push({ id: 'A' + Date.now(), name, cat: document.getElementById('a-cat').value, desc: document.getElementById('a-desc').value });
+  S.set('assets', assets);
+  closeModal('modal-asset');
+  populateAssetFilter();
+  logAudit('Asset added', name, '🔧');
+  toast('Asset added');
+}
+
+function openBookSlot(date, time) {
+  const assets = S.assets();
+  const sel = document.getElementById('bk-asset');
+  sel.innerHTML = '<option value="">Select asset</option>' + assets.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  document.getElementById('bk-date').value = date;
+  const ts = document.getElementById('bk-time');
+  ts.innerHTML = TIME_SLOTS.map(t => `<option ${t === time ? 'selected' : ''}>${t}</option>`).join('');
+  document.getElementById('bk-by').value = (S.session() || {}).name || '';
+  document.getElementById('bk-purpose').value = '';
+  openModal('modal-book');
+}
+
+function saveBooking() {
+  const assetId = document.getElementById('bk-asset').value;
+  const date = document.getElementById('bk-date').value;
+  const time = document.getElementById('bk-time').value;
+  if (!assetId || !date || !time) { toast('Please fill all required fields', '⚠️'); return; }
+  const existing = S.bookings().find(b => b.assetId === assetId && b.date === date && b.time === time);
+  if (existing) { toast('This slot is already booked!', '⚠️'); return; }
+  const asset = S.assets().find(a => a.id === assetId);
+  const bk = {
+    id: 'BK' + Date.now(),
+    assetId, assetName: asset ? asset.name : assetId,
+    date, time,
+    by: document.getElementById('bk-by').value,
+    purpose: document.getElementById('bk-purpose').value,
+    status: 'Confirmed',
+    created: new Date().toISOString(),
+  };
+  const bookings = S.bookings();
+  bookings.push(bk); S.set('bookings', bookings);
+  closeModal('modal-book');
+  renderCal(); renderSlots(); renderBookings();
+  logAudit('Asset booked', (asset ? asset.name : assetId) + ' @ ' + time, '📅');
+  toast('Slot booked');
+}
+
+function renderBookings() {
+  const bookings = S.bookings().sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+  const tbody = document.getElementById('bookings-tbody');
+  const empty = document.getElementById('bookings-empty');
+  if (!bookings.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = bookings.map(b => `<tr>
+    <td class="tbl-name">${b.assetName}</td>
+    <td>${b.date}</td>
+    <td>${b.time}</td>
+    <td>${b.by || '—'}</td>
+    <td style="max-width:140px;font-size:11px;">${b.purpose || '—'}</td>
+    <td><span class="pill pill-lime">${b.status}</span></td>
+    <td><button class="ic-btn del" onclick="cancelBooking('${b.id}')">✕</button></td>
+  </tr>`).join('');
+}
+
+function cancelBooking(id) {
+  if (!confirm('Cancel this booking?')) return;
+  S.set('bookings', S.bookings().filter(b => b.id !== id));
+  renderCal(); renderSlots(); renderBookings();
+  logAudit('Booking cancelled', id, '✕');
+  toast('Booking cancelled', '✕');
+}
+
+// ══════════════════════════════════════════════════
+// REQUESTS & APPROVALS
+// ══════════════════════════════════════════════════
+const PRIO_BAR = { Low: '#5b7fff', Medium: '#ffc542', High: '#ff9500', Urgent: '#ff6b6b' };
+
+function renderRequests() {
+  const q = (document.getElementById('req-search') || {}).value?.toLowerCase() || '';
+  const sf = (document.getElementById('req-filter') || {}).value || '';
+  const all = S.requests();
+  const filtered = all.filter(r => (!q || (r.title + r.desc).toLowerCase().includes(q)) && (!sf || r.status === sf));
+  document.getElementById('rq-open').textContent = all.filter(r => r.status === 'Open').length;
+  document.getElementById('rq-review').textContent = all.filter(r => r.status === 'In Review').length;
+  document.getElementById('rq-approved').textContent = all.filter(r => r.status === 'Approved').length;
+  document.getElementById('rq-rejected').textContent = all.filter(r => r.status === 'Rejected').length;
+  const list = document.getElementById('req-list');
+  const empty = document.getElementById('req-empty');
+  if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const statusPill = { Open: 'pill-amber', 'In Review': 'pill-blue', Approved: 'pill-lime', Rejected: 'pill-coral' };
+  list.innerHTML = filtered.map(r => `
+    <div class="req-item">
+      <div class="req-prio" style="background:${PRIO_BAR[r.prio] || '#5b7fff'};"></div>
+      <div class="req-body">
+        <div class="req-title">${r.title}</div>
+        <div class="req-meta">
+          <span class="pill ${statusPill[r.status] || 'pill-blue'}">${r.status}</span>
+          <span class="pill pill-purple">${r.type}</span>
+          ${r.prio !== 'Medium' ? '<span class="pill ' + (r.prio === 'Urgent' ? 'pill-coral' : r.prio === 'High' ? 'pill-amber' : 'pill-teal') + '">' + r.prio + '</span>' : ''}
+          ${r.by ? '<span>By: ' + r.by + '</span>' : ''}
+          ${r.to ? '<span>→ ' + r.to + '</span>' : ''}
+          ${r.due ? '<span>Due: ' + r.due + '</span>' : ''}
+        </div>
+        ${r.desc ? '<div style="font-size:12px;color:var(--txt3);margin-top:5px;line-height:1.6;">' + r.desc.slice(0, 120) + (r.desc.length > 120 ? '…' : '') + '</div>' : ''}
+      </div>
+      <div class="req-acts">
+        ${r.status === 'Open' ? '<button class="btn-xs" onclick="updateReqStatus(\'' + r.id + '\',\'In Review\')">Review</button>' : ''}
+        ${r.status === 'In Review' ? '<button class="btn-prime" style="font-size:11px;padding:5px 10px;" onclick="updateReqStatus(\'' + r.id + '\',\'Approved\')">✓ Approve</button>' : ''}
+        ${r.status === 'In Review' ? '<button class="btn-danger" onclick="updateReqStatus(\'' + r.id + '\',\'Rejected\')">✕ Reject</button>' : ''}
+        <button class="ic-btn del" onclick="deleteRequest('${r.id}')" title="Delete">🗑️</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('req-badge').textContent = all.filter(r => r.status === 'Open' || r.status === 'In Review').length;
+}
+
+function saveRequest() {
+  const title = document.getElementById('rq-title').value.trim();
+  const desc = document.getElementById('rq-desc').value.trim();
+  if (!title || !desc) { toast('Title and description are required', '⚠️'); return; }
+  const r = {
+    id: 'RQ' + Date.now(),
+    title, type: document.getElementById('rq-type').value,
+    prio: document.getElementById('rq-prio').value,
+    by: document.getElementById('rq-by').value,
+    to: document.getElementById('rq-to').value,
+    due: document.getElementById('rq-due').value,
+    desc, status: 'Open',
+    created: new Date().toISOString(),
+  };
+  const reqs = S.requests();
+  reqs.push(r); S.set('requests', reqs);
+  closeModal('modal-req');
+  renderRequests(); refreshAll();
+  logAudit('Request submitted', title, '📬');
+  toast('Request submitted');
+}
+
+function updateReqStatus(id, status) {
+  let reqs = S.requests();
+  reqs = reqs.map(r => r.id === id ? { ...r, status } : r);
+  S.set('requests', reqs);
+  renderRequests(); refreshAll();
+  const r = reqs.find(x => x.id === id);
+  logAudit('Request ' + status.toLowerCase(), r ? r.title : id, status === 'Approved' ? '✅' : status === 'Rejected' ? '❌' : '👀');
+  toast('Request marked as ' + status);
+}
+
+function deleteRequest(id) {
+  if (!confirm('Delete this request?')) return;
+  S.set('requests', S.requests().filter(r => r.id !== id));
+  renderRequests(); refreshAll();
+  logAudit('Request deleted', id, '🗑️');
+  toast('Request deleted', '🗑️');
+}
+
+// ══════════════════════════════════════════════════
+// SOP TEMPLATES
+// ══════════════════════════════════════════════════
+const SOP_ICONS = { HR: '👥', Operations: '⚙️', Finance: '💰', Safety: '🛡️', Quality: '✅', IT: '💻', Legal: '⚖️', Other: '📋' };
+
+function renderSOPs() {
+  const q = (document.getElementById('sop-search') || {}).value?.toLowerCase() || '';
+  const cf = (document.getElementById('sop-filter') || {}).value || '';
+  const all = S.sops();
+  const cats = [...new Set(all.map(s => s.cat).filter(Boolean))];
+  const csel = document.getElementById('sop-filter');
+  const cur = csel.value;
+  csel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option ${c === cur ? 'selected' : ''}>${c}</option>`).join('');
+  const filtered = all.filter(s => (!q || (s.title + s.desc).toLowerCase().includes(q)) && (!cf || s.cat === cf));
+  const grid = document.getElementById('sop-grid');
+  const empty = document.getElementById('sop-empty');
+  if (!filtered.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(s => {
+    const icon = SOP_ICONS[s.cat] || '📋';
+    const steps = (s.steps || '').split('\n').filter(Boolean).length;
+    return `<div class="sop-card" onclick="viewSOP('${s.id}')">
+      <span class="sop-icon">${icon}</span>
+      <div class="sop-title">${s.title}</div>
+      <div class="sop-desc">${s.desc || '—'}</div>
+      <div class="sop-tags">
+        ${s.cat ? '<span class="pill pill-blue">' + s.cat + '</span>' : ''}
+        <span class="pill pill-teal">${steps} steps</span>
+        ${s.owner ? '<span class="pill pill-purple">' + s.owner + '</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveSOP() {
+  const title = document.getElementById('sop-title').value.trim();
+  const steps = document.getElementById('sop-steps').value.trim();
+  if (!title || !steps) { toast('Title and steps are required', '⚠️'); return; }
+  const editId = document.getElementById('sop-edit-id').value;
+  const s = {
+    id: editId || 'SOP' + Date.now(),
+    title, cat: document.getElementById('sop-cat').value,
+    desc: document.getElementById('sop-desc').value,
+    steps, owner: document.getElementById('sop-owner').value,
+    created: editId ? (S.sops().find(x => x.id === editId) || {}).created || new Date().toISOString() : new Date().toISOString(),
+  };
+  let sops = S.sops();
+  if (editId) sops = sops.map(x => x.id === editId ? s : x); else sops.push(s);
+  S.set('sops', sops);
+  closeModal('modal-sop');
+  renderSOPs();
+  logAudit(editId ? 'SOP updated' : 'SOP created', title, '📋');
+  toast(editId ? 'Template updated' : 'Template created');
+}
+
+function viewSOP(id) {
+  const s = S.sops().find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('slide-sop-title').textContent = s.title;
+  const steps = (s.steps || '').split('\n').filter(Boolean);
+  document.getElementById('slide-sop-body').innerHTML = `
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">
+      ${s.cat ? '<span class="pill pill-blue">' + s.cat + '</span>' : ''}
+      ${s.owner ? '<span class="pill pill-purple">' + s.owner + '</span>' : ''}
+      <span class="pill pill-teal">${steps.length} steps</span>
+    </div>
+    ${s.desc ? '<div style="font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.6;">' + s.desc + '</div>' : ''}
+    <div style="font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">Procedure Steps</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+      ${steps.map((step, i) => `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--ink3);border-radius:var(--r);border:1px solid var(--rim);">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--lime);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">${i + 1}</div>
+        <div style="font-size:13px;color:var(--txt);line-height:1.5;">${step}</div>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-prime" style="flex:1;justify-content:center;" onclick="editSOP('${id}')">✏️ Edit</button>
+      <button class="btn-xs" onclick="useSOP('${id}')">📝 Use as Entry</button>
+      <button class="btn-danger" onclick="deleteSOP('${id}')">🗑️</button>
+    </div>`;
+  openSlide('slide-sop');
+}
+
+function editSOP(id) {
+  const s = S.sops().find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('sop-edit-id').value = id;
+  document.getElementById('sop-modal-title').textContent = 'Edit SOP Template';
+  document.getElementById('sop-title').value = s.title;
+  document.getElementById('sop-cat').value = s.cat || '';
+  document.getElementById('sop-desc').value = s.desc || '';
+  document.getElementById('sop-steps').value = s.steps || '';
+  document.getElementById('sop-owner').value = s.owner || '';
+  closeSlide('slide-sop');
+  openModal('modal-sop');
+}
+
+function useSOP(id) {
+  const s = S.sops().find(x => x.id === id);
+  if (!s) return;
+  const entries = S.entries();
+  const nid = 'E' + Date.now();
+  entries.unshift({ id: nid, title: s.title + ' — Execution', tag: 'Other', content: 'SOP: ' + s.title + '\n\n' + s.steps, created: new Date().toISOString(), updated: new Date().toISOString() });
+  S.set('entries', entries);
+  closeSlide('slide-sop');
+  switchPanel('notebook', document.querySelector('[data-p=notebook]'));
+  setTimeout(() => openEntry(nid), 100);
+  logAudit('SOP used as notebook entry', s.title, '📝');
+  toast('SOP copied to notebook');
+}
+
+function deleteSOP(id) {
+  if (!confirm('Delete this template?')) return;
+  S.set('sops', S.sops().filter(s => s.id !== id));
+  closeSlide('slide-sop');
+  renderSOPs();
+  logAudit('SOP deleted', id, '🗑️');
+  toast('Template deleted', '🗑️');
+}
+
+// ══════════════════════════════════════════════════
+// ANALYTICS & AUDIT
+// ══════════════════════════════════════════════════
+function renderAnalytics() {
+  const entries = S.entries();
+  const cases = S.cases();
+  const reqs = S.requests();
+  const audit = S.audit();
+  document.getElementById('an-entries').textContent = entries.length;
+  document.getElementById('an-cases').textContent = cases.length;
+  document.getElementById('an-reqs').textContent = reqs.length;
+  document.getElementById('an-actions').textContent = audit.length;
+  // audit log
+  const alog = document.getElementById('audit-log-list');
+  const aemp = document.getElementById('audit-empty');
+  if (!audit.length) { alog.innerHTML = ''; aemp.style.display = 'block'; }
+  else {
+    aemp.style.display = 'none';
+    alog.innerHTML = audit.slice(0, 50).map(a => `
+      <div class="audit-item">
+        <div class="audit-icon" style="background:var(--ink3);border:1px solid var(--rim);">${a.icon || '📝'}</div>
+        <div class="audit-body">
+          <div class="audit-action">${a.action}${a.detail ? ' — ' + a.detail : ''}</div>
+          <div class="audit-meta">By ${a.user || 'System'}</div>
+        </div>
+        <div class="audit-time">${new Date(a.ts).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+      </div>`).join('');
+  }
+  // case stats
+  const stageCount = {};
+  STAGES.forEach(s => stageCount[s] = cases.filter(c => c.stage === s).length);
+  document.getElementById('case-stat-content').innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:14px;">Cases by Stage</div>' +
+    STAGES.map(s => `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span>${s}</span><span style="font-weight:700;">${stageCount[s]}</span></div>
+      <div class="res-bar"><div class="res-fill" style="width:${cases.length ? Math.round(stageCount[s] / cases.length * 100) : 0}%;background:var(--lime);"></div></div>
+    </div>`).join('');
+  // resource stats
+  const resources = S.resources();
+  const low = resources.filter(r => r.min && r.qty <= r.min);
+  document.getElementById('res-stat-content').innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:14px;">Resource Health</div>' +
+    (resources.length ? resources.slice(0, 8).map(r => {
+      const pct = r.max ? Math.min(100, Math.round(r.qty / r.max * 100)) : 50;
+      const isLow = r.min && r.qty <= r.min;
+      return `<div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span>${r.name}</span>
+          <span style="color:${isLow ? 'var(--coral)' : 'var(--txt2)'};">${r.qty} ${r.unit || ''}</span>
+        </div>
+        <div class="res-bar"><div class="res-fill" style="width:${pct}%;background:${isLow ? 'var(--coral)' : pct > 60 ? 'var(--lime)' : 'var(--amber)'};"></div></div>
+      </div>`;
+    }).join('') : '<div class="empty"><div class="e-icon">🗃️</div><p>No resources tracked yet.</p></div>');
+}
+
+// ══════════════════════════════════════════════════
+// AI CHAT
+// ══════════════════════════════════════════════════
+let chatHistory = [];
+let chatMode = 'general';
+
+const MODE_PROMPTS = {
+  general: 'You are Doctigo Timeguard AI, a universal work management assistant. Help users with any professional task — planning, organising, writing, or analysis. Be concise, practical, and helpful.',
+  planning: 'You are Doctigo Timeguard AI in Planning mode. Help users plan projects, create roadmaps, set priorities, break down goals, and structure work efficiently.',
+  writing: 'You are Doctigo Timeguard AI in Writing mode. Help users write professional documents, emails, reports, summaries, and communications clearly and effectively.',
+  analysis: 'You are Doctigo Timeguard AI in Analysis mode. Help users analyse situations, data, processes, and decisions. Provide structured, evidence-based insights.',
+  sop: 'You are Doctigo Timeguard AI in SOP Builder mode. Help users create detailed Standard Operating Procedures. Always output SOPs as numbered steps, clearly structured, with a title, objective, and step-by-step instructions.',
+};
+
+function setMode(el, mode) {
+  document.querySelectorAll('.cmpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on'); chatMode = mode;
+}
+
+function qSend(text) {
+  document.getElementById('chat-in').value = text;
+  sendChat();
+}
+
+function addCMsg(role, text) {
+  const c = document.getElementById('chat-msgs');
+  const isAI = role === 'ai';
+  const div = document.createElement('div');
+  div.className = 'cmsg ' + (isAI ? '' : 'user');
+  div.innerHTML = `<div class="cav ${isAI ? 'ai' : 'usr'}">${isAI ? 'TG' : 'You'}</div>
+    <div>
+      <div class="cbub">${text.replace(/\n/g, '<br>')}</div>
+      <div class="cmeta">${isAI ? 'Doctigo Timeguard AI · ' : ''}${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+    </div>`;
+  c.appendChild(div);
+  setTimeout(() => c.scrollTop = c.scrollHeight, 50);
+  return div;
+}
+
+function addTyping() {
+  const c = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'cmsg'; d.id = 'typing';
+  d.innerHTML = '<div class="cav ai">TG</div><div><div class="cbub"><div style="display:flex;gap:4px;align-items:center;"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div></div>';
+  c.appendChild(d);
+  setTimeout(() => c.scrollTop = c.scrollHeight, 50);
+}
+
+function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+async function sendChat() {
+  const inp = document.getElementById('chat-in');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('send-b').disabled = true;
+  addCMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  addTyping();
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory, system: MODE_PROMPTS[chatMode], max_tokens: 1000 }),
+    });
+    const data = await res.json();
+    removeTyping();
+    const reply = data.content || data.error || 'Sorry, something went wrong.';
+    addCMsg('ai', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    logAudit('AI chat message', chatMode + ' mode', '🤖');
+  } catch (e) {
+    removeTyping();
+    addCMsg('ai', 'Connection error — make sure your backend server is running and ANTHROPIC_API_KEY is set.');
+  }
+  document.getElementById('send-b').disabled = false;
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildIndGrid();
+  // Set today as default date in booking modal
+  document.getElementById('bk-date').value = new Date().toISOString().split('T')[0];
+  // Check existing session
+  const session = S.session();
+  if (session) {
+    enterApp(session);
+  }
+});
+</script>
+</body>
+</html>
